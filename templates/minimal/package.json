@@ -1,0 +1,16 @@
+{
+  "name": "harbor-game",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "validate": "node tools/check-scene.mjs",
+    "simulate": "node tools/check-scene.mjs --simulate"
+  },
+  "dependencies": { "@harbor/engine": "file:vendor/engine.tgz" },
+  "devDependencies": { "typescript": "7.0.2", "vite": "8.3.4" },
+  "engines": { "node": ">=22.12" }
+}

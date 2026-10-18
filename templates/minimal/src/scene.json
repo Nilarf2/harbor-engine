@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "name": "My Harbor Game",
+  "seed": 42,
+  "entities": [
+    { "id": "ground", "position": [0, -0.5, 0], "visual": { "shape": "box", "size": [20, 1, 20], "color": "#a9b8aa", "batch": true }, "body": { "type": "fixed", "shape": "box", "size": [20, 1, 20] } },
+    { "id": "player", "position": [0, 1.2, 0], "tags": ["player"], "visual": { "shape": "capsule", "size": [0.7, 1.8, 0.7], "color": "#558ee0", "roughness": 0.35 }, "body": { "type": "character", "shape": "capsule", "size": [0.7, 1.8, 0.7] } },
+    { "id": "crate", "position": [2, 1, 0], "visual": { "shape": "box", "size": [1, 1, 1], "color": "#da8f51" }, "body": { "type": "dynamic", "shape": "box", "size": [1, 1, 1], "mass": 2 } },
+    { "id": "ball", "position": [-2, 1, 0], "visual": { "shape": "sphere", "size": [1.2, 1.2, 1.2], "color": "#d9dfe6", "metalness": 0.9, "roughness": 0.15 }, "body": { "type": "dynamic", "shape": "sphere", "size": [1.2, 1.2, 1.2], "mass": 2 } },
+    { "id": "step", "position": [0, 0.15, -3], "visual": { "shape": "box", "size": [3, 0.3, 2], "color": "#c7a981", "batch": true }, "body": { "type": "fixed", "shape": "box", "size": [3, 0.3, 2] } }
+  ]
+}

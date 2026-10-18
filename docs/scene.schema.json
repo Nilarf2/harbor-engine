@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Harbor Scene v1",
+  "description": "Declarative scene data. Run validateScene for cross-field dimensions, normalized quaternions, duplicate entity IDs, and other semantic checks.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "name", "entities"],
+  "properties": {
+    "version": { "const": 1 },
+    "name": { "type": "string", "minLength": 1, "maxLength": 160, "pattern": "\\S" },
+    "seed": { "type": "integer", "minimum": 0, "maximum": 4294967295 },
+    "fixedDelta": { "type": "number", "minimum": 0.000001, "maximum": 1, "default": 0.016666666666666666 },
+    "entities": { "type": "array", "items": { "$ref": "#/$defs/entity" } }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]{0,127}$" },
+    "color": { "type": "string", "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$" },
+    "dimension": { "type": "number", "minimum": 0.0001, "maximum": 1000000 },
+    "size": {
+      "type": "array", "minItems": 3, "maxItems": 3,
+      "items": { "$ref": "#/$defs/dimension" },
+      "description": "Full dimensions. Spheres require x=y=z. Capsules/cylinders/cones require x=z, and capsules require y>=x. Runtime validation enforces these relationships."
+    },
+    "position": {
+      "type": "array", "minItems": 3, "maxItems": 3,
+      "items": { "type": "number", "minimum": -1000000, "maximum": 1000000 },
+      "default": [0, 0, 0]
+    },
+    "rotation": {
+      "type": "array", "minItems": 4, "maxItems": 4,
+      "items": { "type": "number" },
+      "default": [0, 0, 0, 1],
+      "description": "Quaternion [x,y,z,w]; runtime validator requires norm within 0.0001 of 1."
+    },
+    "json": {
+      "oneOf": [
+        { "type": "null" }, { "type": "boolean" }, { "type": "number" }, { "type": "string" },
+        { "type": "array", "items": { "$ref": "#/$defs/json" } },
+        { "type": "object", "additionalProperties": { "$ref": "#/$defs/json" } }
+      ]
+    },
+    "visual": {
+      "type": "object", "additionalProperties": false,
+      "required": ["shape", "size"],
+      "properties": {
+        "shape": { "enum": ["box", "sphere", "capsule", "cylinder", "cone"] },
+        "size": { "$ref": "#/$defs/size" },
+        "color": { "$ref": "#/$defs/color" },
+        "roughness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "metalness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "transmission": { "type": "number", "minimum": 0, "maximum": 1 },
+        "ior": { "type": "number", "minimum": 1, "maximum": 3 },
+        "emissive": { "$ref": "#/$defs/color" },
+        "emissiveIntensity": { "type": "number", "minimum": 0, "maximum": 1000000 },
+        "batch": { "type": "boolean", "description": "Only entities that remain static may use instancing." },
+        "castShadow": { "type": "boolean" }
+      }
+    },
+    "body": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "shape", "size"],
+      "properties": {
+        "type": { "enum": ["fixed", "dynamic", "character"] },
+        "shape": { "enum": ["box", "sphere", "capsule"] },
+        "size": { "$ref": "#/$defs/size" },
+        "friction": { "type": "number", "minimum": 0, "maximum": 1000000 },
+        "restitution": { "type": "number", "minimum": 0, "maximum": 1 },
+        "mass": { "type": "number", "minimum": 0.000001, "maximum": 1000000 }
+      },
+      "allOf": [{
+        "if": { "required": ["mass"] },
+        "then": { "properties": { "type": { "const": "dynamic" } } }
+      }]
+    },
+    "entity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "position": { "$ref": "#/$defs/position" },
+        "rotation": { "$ref": "#/$defs/rotation" },
+        "scale": { "$ref": "#/$defs/size", "default": [1, 1, 1] },
+        "visual": { "$ref": "#/$defs/visual" },
+        "body": { "$ref": "#/$defs/body" },
+        "tags": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" }, "default": [] },
+        "data": { "type": "object", "additionalProperties": { "$ref": "#/$defs/json" }, "default": {} }
+      },
+      "allOf": [
+        {
+          "if": { "required": ["body"] },
+          "then": { "properties": { "scale": { "const": [1, 1, 1] } } }
+        },
+        {
+          "if": { "required": ["body"], "properties": { "body": { "required": ["type"], "properties": { "type": { "enum": ["dynamic", "character"] } } } } },
+          "then": { "properties": { "visual": { "properties": { "batch": { "const": false } } } } }
+        }
+      ]
+    }
+  }
+}

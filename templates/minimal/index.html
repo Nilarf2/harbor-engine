@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Harbor Game</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #11262e; color: #f3f5ed; font: 15px/1.5 system-ui, sans-serif; }
+      canvas { display: block; width: 100vw; height: 100vh; outline: none; }
+      aside { position: fixed; top: 20px; left: 20px; max-width: 340px; padding: 16px 20px; border: 1px solid #ffffff25; border-radius: 12px; background: #102329d9; }
+      h1 { margin: 0 0 6px; font-size: 20px; } p { margin: 6px 0; }
+      a { color: #a9e6df; margin-right: 14px; } #status { color: #c4d6d9; font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <canvas id="game" tabindex="0" aria-label="Game view"></canvas>
+    <aside>
+      <h1>My Harbor Game</h1>
+      <p>WASD or arrow keys to move. Space to jump.</p>
+      <p><a href="?mode=pathtrace">Physical path tracing</a><a href="?mode=raster">Compatible raster view</a></p>
+      <p id="status">Loading…</p>
+    </aside>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

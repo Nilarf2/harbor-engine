@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "strict": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": [
+      "vite/client",
+      "node",
+      "@webgpu/types"
+    ]
+  },
+  "include": [
+    "src",
+    "demo",
+    "tests/*.ts",
+    "tools/*.ts",
+    "vite.config.ts"
+  ]
+}
