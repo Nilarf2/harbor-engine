@@ -160,7 +160,7 @@ export interface PreparedSceneInspection {
   triangles: number;
   expandedTriangles: number;
   geometryBytes: number;
-  /** Conservative size of upstream's single interleaved vertex storage buffer. */
+  /** Estimated single packed vertex binding, excluding BVH, ray state, textures and denoising. */
   estimatedAttributeBytes: number;
 }
 
@@ -327,13 +327,17 @@ export class PreparedQualityScene {
   }
 
   inspect(): PreparedSceneInspection {
-    let meshes = 0, instances = 0, triangles = 0, expandedTriangles = 0, sourceVertices = 0, compactVertices = 0, geometryBytes = 0, extraUV = 0;
+    let meshes = 0, instances = 0, triangles = 0, expandedTriangles = 0, sourceVertices = 0, compactVertices = 0, geometryBytes = 0;
+    const uvChannels = new Set<string>();
     const countedSources = new Set<string>();
     for (const entry of this.cache.values()) {
       const identity = `${entry.source.uuid}:${entry.morphOwner?.uuid ?? ''}`;
       if (!countedSources.has(identity)) { countedSources.add(identity); sourceVertices += entry.sourceVertices; }
       compactVertices += entry.vertices; geometryBytes += entry.bytes; triangles += entry.triangles;
-      extraUV = Math.max(extraUV, Object.keys(entry.geometry.attributes).filter(key => /^uv[1-7]$/.test(key)).length);
+      // Upstream builds one schema from the union across the complete scene,
+      // including channels appearing on different geometries. Every member is
+      // vec4f; position/normal/tangent/color are always present.
+      for (const key of Object.keys(entry.geometry.attributes)) if (/^uv(?:[1-7])?$/.test(key)) uvChannels.add(key);
     }
     this.scene.traverse(object => { if (object instanceof Mesh) { meshes++; const count = object instanceof InstancedMesh ? object.count : 1; instances += count; expandedTriangles += (object.geometry.index?.count ?? 0) / 3 * count; } });
     // Each skinned pose has a distinct BVH, plus a static BVH if that geometry is
@@ -348,7 +352,7 @@ export class PreparedQualityScene {
     const sourceMeshes = this.parts.size, sourceInstances = [...this.parts.keys()].reduce((sum, mesh) => sum + (mesh instanceof InstancedMesh ? mesh.count : 1), 0);
     const maxGeometryGroups = Math.max(0, ...[...this.cache.values()].map(entry => entry.geometry.groups.length));
     return { meshes, instances, sourceMeshes, sourceInstances, maxGeometryGroups, uniqueGeometries: this.cache.size, sourceVertices, compactVertices, triangles, expandedTriangles, geometryBytes,
-      estimatedAttributeBytes: packedVertices * (5 + extraUV) * 16 };
+      estimatedAttributeBytes: Math.max(packedVertices, 2) * (4 + uvChannels.size) * 16 };
   }
 
   dispose(): void {

@@ -36,6 +36,8 @@ export interface PathTracingViewInspection extends PreparedSceneInspection {
   texturePages: number;
   textureWidth: number;
   textureHeight: number;
+  /** Actual single packed vertex binding; excludes all other renderer resources. */
+  packedAttributeBytes?: number;
   limits: { maxBufferSize: number; maxStorageBufferBindingSize: number; maxTextureDimension2D: number };
   error?: string;
 }
@@ -222,10 +224,12 @@ export async function createPathTracingView(options: PathTracingViewOptions): Pr
       measureSamples,
       inspect() {
         const atlas = tracer!.textureAtlas;
+        const packed = (tracer as unknown as { _bvhData?: { storage?: { attributes?: { value?: { array?: ArrayBufferView } } } } })._bvhData?.storage?.attributes?.value?.array;
         return { ...prepared!.inspect(), backend: 'webgpu', implementation: 'three-gpu-pathtracer', width, height, revision,
           maxBounces: tracer!.maxBounces, maxSamples: tracer!.maxSamples, frameBudget: requestedBudget,
           samplingMode, tracingKernel: 'megakernel', tiles: { columns: plan.columns, rows: plan.rows, dispatches: plan.dispatches, maxTilePixels: plan.maxTilePixels },
           samples, texturePages: atlas.pageCount, textureWidth: atlas.width, textureHeight: atlas.height,
+          ...(packed ? { packedAttributeBytes: packed.byteLength } : {}),
           limits: { maxBufferSize: device.limits.maxBufferSize, maxStorageBufferBindingSize: device.limits.maxStorageBufferBindingSize, maxTextureDimension2D: device.limits.maxTextureDimension2D },
           ...(failure ? { error: failure.message } : {}), };
       }, dispose,

@@ -14,9 +14,9 @@ Final preparation checks cover ordered ≤128-group partitions, unchanged triang
 
 The Linux independent consumer passed a tarball-only installation outside the checkout, validation, 180 simulation ticks, production build, public CPU imports and all 11 export targets. Its dist contains same-origin OIDN weights with the length/hash above. A path containing spaces was exercised; no cross-repository source import was used.
 
-CI 已配置 Ubuntu/Windows CPU 矩阵和相同独立 consumer 检查；此处不把配置存在当成 Windows 实际通过。0.2 新渲染、降噪和 Dragon 应用的 GPU 验收另行记录，下方 0.1 GTX 1070 历史证据不自动覆盖新代码。
+Ubuntu 与 Windows 的 GitHub Actions 在 `5f24d808442db591c979ddfb8a6e000bec87e6a1` 均真实通过：[验收运行](https://github.com/Nilarf2/harbor-engine/actions/runs/39552399074)。两平台均执行 locked install、93 项测试、type/build、模型检查和独立 consumer。Windows 首轮暴露跨盘路径判断问题：D: checkout 到 C: 临时目录被误认作模板子目录；修复后重新运行通过，未绕过任何检查。0.2 图形与 Dragon 应用的 GPU 验收另行记录，下方 0.1 历史证据不自动覆盖新代码。
 
-CI is configured for Ubuntu/Windows CPU checks and the same independent consumer. Configuration alone is not a recorded Windows pass. New rendering/denoising and Dragon GPU acceptance are tracked separately; the historical GTX 1070 evidence below applies to its recorded revision.
+Both Ubuntu and Windows GitHub Actions passed on the linked revision, including locked installation, 93 tests, type/build checks, model inspection and the independent consumer. The first Windows run exposed a generator cross-drive check: a C: temporary destination was rejected from a D: checkout. The corrected path check passed a fresh run without bypassing validation. Graphics and Dragon application acceptance are recorded separately; historical evidence below applies to its original revision.
 
 ## 0.2 native quality software acceptance · 原生质量视图软件验收
 

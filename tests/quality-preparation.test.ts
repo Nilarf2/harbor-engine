@@ -81,6 +81,22 @@ test('separate actors retain separate pose skeletons and private caches survive 
   assert.notEqual(ps.geometry, geometry); prepared.dispose(); geometry.dispose(); unrelated.geometry.dispose(); material.dispose();
 });
 
+test('capacity estimates use the scene-wide UV union and match the actual packed vertex binding', () => {
+  const scene = new Scene(), material = new MeshStandardMaterial();
+  const first = new BoxGeometry(), second = new BoxGeometry();
+  first.setAttribute('uv1', first.getAttribute('uv').clone());
+  second.setAttribute('uv2', second.getAttribute('uv').clone());
+  scene.add(new Mesh(first, material), new Mesh(second, material));
+  const prepared = new PreparedQualityScene(scene), packed = new PathtracerBVHComputeData(prepared.scene);
+  try {
+    packed.update();
+    const actual = packed.storage.attributes.value.array.byteLength;
+    assert.equal(prepared.inspect().estimatedAttributeBytes, (first.getAttribute('position').count + second.getAttribute('position').count) * 7 * 16);
+    assert.equal(prepared.inspect().estimatedAttributeBytes, actual);
+    assert.ok(actual < actual + packed.storage.index.value.array.byteLength, 'single attribute binding excludes other storage buffers');
+  } finally { packed.dispose(); prepared.dispose(); first.dispose(); second.dispose(); material.dispose(); }
+});
+
 test('unknown shaders are explicit and a failed rebuild preserves the current graph and disposes allocated copies', () => {
   const scene = new Scene(), material = new MeshStandardMaterial(), good = new Mesh(new BoxGeometry(), material); good.name = 'good'; scene.add(good);
   const prepared = new PreparedQualityScene(scene), previous = prepared.scene;
