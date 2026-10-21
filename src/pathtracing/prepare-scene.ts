@@ -1,6 +1,6 @@
 import {
   BufferAttribute, BufferGeometry, Float16BufferAttribute, InstancedMesh, Mesh,
-  Scene, SkinnedMesh, type InstancedBufferAttribute, type InterleavedBufferAttribute, type Material, type Object3D,
+  Object3D, Scene, SkinnedMesh, type InstancedBufferAttribute, type InterleavedBufferAttribute, type Material,
 } from 'three/webgpu';
 import { clone as cloneSkeleton } from 'three/addons/utils/SkeletonUtils.js';
 
@@ -193,7 +193,8 @@ export class PreparedQualityScene {
     const skeletons = new Set<SkinnedMesh['skeleton']>();
     scene.traverse(object => {
       if (object instanceof SkinnedMesh && !skeletons.has(object.skeleton)) { skeletons.add(object.skeleton); object.skeleton.dispose(); }
-      if (object instanceof InstancedMesh) object.dispose();
+      if (object instanceof InstancedMesh) InstancedMesh.prototype.dispose.call(object);
+      else if (object instanceof Mesh) Object3D.prototype.dispose.call(object);
     });
   }
 
@@ -251,7 +252,7 @@ export class PreparedQualityScene {
     for (const key of nextCache.keys()) if (!used.has(key)) nextCache.delete(key);
     this.releaseGraph();
     for (const [key, entry] of this.cache) if (nextCache.get(key) !== entry) entry.geometry.dispose();
-    this.scene = nextScene; this.mapping = nextMapping; this.parts = nextParts; this.cache = nextCache;
+    this.scene.clear(); this.scene = nextScene; this.mapping = nextMapping; this.parts = nextParts; this.cache = nextCache;
     this.syncTransforms(); this.syncEnvironment();
   }
 
@@ -356,7 +357,7 @@ export class PreparedQualityScene {
   }
 
   dispose(): void {
-    if (this.disposed) return; this.disposed = true; this.releaseGraph(); this.mapping.clear(); this.parts.clear();
+    if (this.disposed) return; this.disposed = true; this.releaseGraph(); this.scene.clear(); this.mapping.clear(); this.parts.clear();
     for (const entry of this.cache.values()) entry.geometry.dispose(); this.cache.clear();
   }
 }

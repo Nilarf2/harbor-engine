@@ -5,6 +5,7 @@ import {
 import { WebGPUPathTracer, type SampleCounts } from 'three-gpu-pathtracer/webgpu';
 import { PreparedQualityScene, type PreparedSceneInspection, type QualitySceneChange } from './prepare-scene.js';
 import { completeFramePlan, type CompleteFramePlan } from './frame-plan.js';
+import { OwnedPathTracingBVH } from './owned-bvh.js';
 
 export interface PathTracingViewOptions {
   /** Initialized native WebGPU renderer; its canvas, device and output policy remain caller-owned. */
@@ -93,6 +94,7 @@ export async function createPathTracingView(options: PathTracingViewOptions): Pr
   const backend = renderer.backend as typeof renderer.backend & { device?: GPUDevice; isWebGPUBackend?: boolean };
   const device = backend.device;
   if (!backend.isWebGPUBackend || !device) throw new Error('Quality view requires a native WebGPU renderer; use raster on WebGL2');
+  const ownedBVH = new OwnedPathTracingBVH(renderer);
   let prepared: PreparedQualityScene | undefined, tracer: WebGPUPathTracer | undefined;
   // Upstream presents after computing. Bind a private 1px discard target so the
   // application alone composes raw HDR and performs the display transformation.
@@ -123,7 +125,11 @@ export async function createPathTracingView(options: PathTracingViewOptions): Pr
       filteredEnvironment = { original: current, copy }; prepared!.scene.environment = copy;
     }
   };
-  const refresh = (): void => { checkCapacity(); normalizeEnvironment(); tracer!.setScene(prepared!.scene, camera); };
+  const refresh = (): void => {
+    checkCapacity(); normalizeEnvironment();
+    try { ownedBVH.setScene(tracer!, prepared!.scene, camera); }
+    catch (error) { report(error); throw error; }
+  };
   function configureTiles(): void {
     if (tracer!.frameBudget !== installedBudget) requestedBudget = positiveInteger(tracer!.frameBudget, 'frameBudget');
     const next = completeFramePlan(width, height, requestedBudget);
@@ -172,8 +178,14 @@ export async function createPathTracingView(options: PathTracingViewOptions): Pr
     disposal = (async () => {
       await Promise.allSettled(pendingReads);
       try { await device!.queue.onSubmittedWorkDone(); } catch { /* Device loss still requires local cleanup. */ }
-      tracer?.dispose(); discard.dispose(); prepared?.dispose(); filteredEnvironment?.copy.dispose();
+      const errors: unknown[] = [];
+      const attempt = (cleanup: () => void): void => { try { cleanup(); } catch (error) { errors.push(error); } };
+      if (tracer) attempt(() => ownedBVH.disposeTracer(tracer!));
+      attempt(() => discard.dispose());
+      if (prepared) attempt(() => prepared!.dispose());
+      if (filteredEnvironment) attempt(() => filteredEnvironment!.copy.dispose());
       // Renderer, device, source graph, materials and textures are deliberately borrowed.
+      if (errors.length) throw new AggregateError(errors, 'Failed to dispose all owned quality-view resources');
     })();
     return disposal;
   }
@@ -215,7 +227,7 @@ export async function createPathTracingView(options: PathTracingViewOptions): Pr
           if (change.transforms) tracer!.updateTransforms();
           if (change.materials) { prepared!.syncMaterials(); tracer!.updateMaterials(); }
           if (change.environment) { prepared!.syncEnvironment(); normalizeEnvironment(); tracer!.updateEnvironment(); }
-          if (change.lights) tracer!.updateLights();
+          if (change.lights) ownedBVH.updateLights(tracer!);
           if (change.camera) tracer!.updateCamera();
         }
         changed(); return true;
@@ -234,5 +246,8 @@ export async function createPathTracingView(options: PathTracingViewOptions): Pr
           ...(failure ? { error: failure.message } : {}), };
       }, dispose,
     };
-  } catch (error) { await dispose(); throw error; }
+  } catch (error) {
+    try { await dispose(); } catch (cleanupError) { throw new AggregateError([error, cleanupError], 'Quality-view initialization and cleanup both failed'); }
+    throw error;
+  }
 }

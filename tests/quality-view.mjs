@@ -25,6 +25,8 @@ try {
     const device = await createQualityDevice();
     const renderer = new THREE.WebGPURenderer({ canvas, device, antialias: false }); await renderer.init();
     renderer.setPixelRatio(1); renderer.setSize(32, 24, false); renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+    const storage = () => ({ count: renderer.info.memory.storageAttributes, bytes: renderer.info.memory.storageAttributesSize });
+    const storageBaseline = storage(), storageChecks = [];
     const scene = new THREE.Scene(); scene.background = new THREE.Color('#112233');
     const camera = new THREE.PerspectiveCamera(50, 32 / 24, .1, 100); camera.position.set(0, 0, 5);
     const top = new THREE.Mesh(new THREE.BoxGeometry(3, 1.8, .2), new THREE.MeshStandardMaterial({ color: '#ff0000', emissive: '#ff0000', emissiveIntensity: 2, roughness: 1 })); top.position.y = .95;
@@ -87,6 +89,7 @@ try {
       await refinement.dispose(); refinement = undefined; denoiser = undefined;
       // Dispose while a real sample mapAsync is pending, then reuse the renderer.
       view.render(); const pending = view.measureSamples(); await view.dispose(); await pending; view = undefined;
+      storageChecks.push({ phase: 'first-view-disposed', ...storage() });
       const live = [];
       const moving = await createPathTracingView({ renderer, scene, camera, width: 32, height: 24, maxBounces: 2, frameBudget: 128 });
       try {
@@ -95,14 +98,25 @@ try {
           moving.syncScene({ transforms: true, camera: true, environment: true }); moving.render();
           live.push({ samples: await moving.measureSamples(), image: await draw(moving.outputTexture), plan: moving.inspect() });
         }
+        const activeStorage = storage();
+        for (let topology = 0; topology < 3; topology++) {
+          const addition = new THREE.Mesh(new THREE.BoxGeometry(.1, .1, .1), bottom.material); addition.position.x = 1 + topology * .1; scene.add(addition);
+          moving.syncScene({ topology: true }); moving.render(); await moving.measureSamples(); await device.queue.onSubmittedWorkDone();
+          const currentStorage = storage();
+          if (currentStorage.count !== activeStorage.count) throw new Error('Topology refresh leaked compute storage: ' + JSON.stringify({ activeStorage, currentStorage }));
+          storageChecks.push({ phase: 'topology-' + topology, ...currentStorage });
+          scene.remove(addition); moving.syncScene({ topology: true }); moving.render(); await moving.measureSamples(); addition.geometry.dispose();
+        }
       } finally { await moving.dispose(); }
+      storageChecks.push({ phase: 'moving-view-disposed', ...storage() });
       const cycles = [];
       for (let i = 0; i < 3; i++) {
         const borrowed = await createPathTracingView({ renderer, scene, camera, width: 16, height: 12, maxBounces: 1, frameBudget: 512 });
         borrowed.render(); await borrowed.measureSamples(); await borrowed.dispose();
         renderer.render(scene, camera); await device.queue.onSubmittedWorkDone(); cycles.push(true);
+        storageChecks.push({ phase: 'view-cycle-' + i, ...storage() });
       }
-      return { initial, settled, raw, filtered, baseline, guides, live, runtime, preservedPolicy, staleImmediatelyRaw, resetState, cycles, sourceDisposals,
+      return { initial, settled, raw, filtered, baseline, guides, live, runtime, preservedPolicy, staleImmediatelyRaw, resetState, cycles, sourceDisposals, storageBaseline, storageChecks,
         sourceBVHPreserved: top.geometry.boundsTree === sentinel, sourceIndexPreserved: JSON.stringify([...top.geometry.index.array]) === JSON.stringify(originalSourceIndex), deviceFeatures: [...device.features] };
     } finally {
       await refinement?.dispose(); await denoiser?.dispose(); await view?.dispose();
@@ -122,5 +136,6 @@ try {
   assert.equal(result.preservedPolicy, true); assert.equal(result.staleImmediatelyRaw, true); assert.equal(result.resetState, 'sampling');
   assert.equal(result.sourceBVHPreserved, true); assert.equal(result.sourceIndexPreserved, true); assert.equal(result.sourceDisposals, 0);
   assert.equal(result.cycles.length, 3); assert.deepEqual(errors, []);
+  for (const check of result.storageChecks.filter(check => !check.phase.startsWith('topology-'))) { assert.equal(check.count, result.storageBaseline.count); assert.equal(check.bytes, result.storageBaseline.bytes); }
   console.log(JSON.stringify({ test: 'borrowed-native-quality-static-OIDN', ...result, graphics: await graphicsEvidence(page), errors }, null, 2));
 } finally { try { await browser?.close(); } finally { await server.close(); } }
