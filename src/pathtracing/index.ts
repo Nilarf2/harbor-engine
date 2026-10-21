@@ -12,6 +12,15 @@ export { createWorldSceneBridge } from './from-world.js';
 export type { WorldSceneBridge, WorldSceneChange } from './from-world.js';
 export { PhysicalCamera } from 'three-gpu-pathtracer';
 export { WebGPUPathTracer, OIDNDenoiser, FSRUpscaler } from 'three-gpu-pathtracer/webgpu';
+export { createQualityDevice, createPathTracingView } from './native-view.js';
+export type { PathTracingView, PathTracingViewOptions, PathTracingViewInspection } from './native-view.js';
+export { compactTraceGeometry, PreparedQualityScene, assertTraceMaterial } from './prepare-scene.js';
+export type { GeometryCompaction, QualitySceneChange, PreparedSceneInspection } from './prepare-scene.js';
+export { StaticRefinementController } from './static-refinement.js';
+export type { StaticDenoiser, StaticDenoiseFrame, RefinementState, RefinementInspection } from './static-refinement.js';
+export { createOIDNStaticDenoiser, verifyOIDNWeights, OIDN_LARGE_WEIGHTS } from './oidn-static.js';
+export type { OIDNStaticOptions, OIDNStaticDenoiser } from './oidn-static.js';
+export { createPathTracingOutputNode } from './output.js';
 
 export interface PathTracingCamera {
   position: [number, number, number];

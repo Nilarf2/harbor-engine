@@ -20,14 +20,24 @@ Harbor source and original example content are copyright © 2026 Nilarf2, releas
 
 Bundled website exports include the `licenses/` directory. The independent game generator copies these notices into the generated application's `public/licenses/`, so they also accompany its static build. Keep them when repackaging or deploying a game.
 
+The generic StoryRunner and SpatialIndex modules were generalized from Nilarf2's MIT-licensed Dragon Raja project (© 2026 Nilarf2). Application story text, location maps and game-specific collision rules are not included in those modules.
+
+通用 StoryRunner 与 SpatialIndex 模块提取自 Nilarf2 的 MIT Dragon Raja 项目（© 2026 Nilarf2）；模块不包含小说正文、地点地图或游戏专用碰撞规则。
+
 ## Offline development tools
 
 - **glTF Transform core/extensions 4.5.1**, MIT, copyright © 2024 Don McCurdy. Used by the offline GLB pipeline. Full notice: `public/licenses/gltf-transform.txt`.
 - **meshoptimizer 1.3.0**, MIT, copyright © 2016–2026 Arseny Kapoulkine. CPU/WebAssembly encoding and decoding for the offline GLB pipeline. Full notice: `public/licenses/meshoptimizer.txt`.
 - **Khronos glTF Validator 2.0.0-dev.3.10**, Apache-2.0, The Khronos Group Inc. The npm distribution includes additional Dart and third-party notices. Preserved in `public/licenses/gltf-validator.txt` and `public/licenses/gltf-validator-notices.txt`.
 
-These tools are development dependencies, not game content. Vite, TypeScript, tsx, Playwright and other tooling retain their distributed package licenses. Research references such as MuTracer, Recast Navigation, KTX-Software and Basis Universal are not bundled dependencies. No optional OIDN model weights or researched gallery assets are included.
+These tools are development dependencies, not game content. Vite, TypeScript, tsx, Playwright and other tooling retain their distributed package licenses. Research references such as MuTracer, Recast Navigation, KTX-Software and Basis Universal are not bundled dependencies. No researched gallery assets are included.
 
 ## Collaboration
 
 Nilarf2 directed the project. Codex (OpenAI) contributed as an AI programming collaborator. This attribution describes assistance; it does not claim sponsorship or endorsement by OpenAI or the authors of researched projects.
+
+## Open Image Denoise / 图像降噪
+
+`oidn-web` 0.5.0 is distributed under MIT; see `public/licenses/oidn-web-LICENSE.txt` and [its pinned source](https://github.com/pissang/oidn-web/tree/057e5a6d7cf5a8e7f7373ef054bd50627e909715). The separately distributed `rt_hdr_calb_cnrm_large.tza` weights originate from RenderKit/oidn-weights commit `28883d1769d5930e13cf7f1676dd852bd81ed9e7` and are licensed under Apache-2.0; see `public/licenses/OIDN-weights-LICENSE.txt` and `public/oidn/manifest.json`. The npm package's MIT license does not relicense those weights.
+
+`oidn-web` 运行库采用 MIT；随包静态精修权重来自固定版本 RenderKit/oidn-weights，单独采用 Apache-2.0，不能以运行库许可证替代。应用复制权重时必须一并保留上述许可证与来源清单。

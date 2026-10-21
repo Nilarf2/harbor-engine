@@ -1,0 +1,526 @@
+{
+  "date": "2026-10-21",
+  "scope": "Harbor 0.2 borrowed native quality view: 32x24 functional fixture, not Dragon city acceptance or a game FPS benchmark",
+  "source": {
+    "baseCommit": "8e1111febf10b56f1123460b22b4694bd70f1c28",
+    "coreCommit": "28b078d",
+    "graphicsRevision": "Integration tree identified by exact patched file hashes below",
+    "archiveVerification": "Both archives were SHA-256 verified by the Windows runner before extraction. Every code-patch entry also matched the build checkout byte for byte. This records archive identity; no separate per-file remote rehash was performed for this run.",
+    "archives": [
+      {
+        "name": "harbor-quality-increment.zip",
+        "bytes": 7752870,
+        "sha256": "8d517a2ee9311398af7d650168fe666708c768539674607a20b77359cc98ea6b"
+      },
+      {
+        "name": "harbor-quality-code-patch.zip",
+        "bytes": 76111,
+        "sha256": "027e6d5cb30d005dd6989e0cabb13ff59f9123bc8268f002cf75506dddb6f4cb"
+      }
+    ],
+    "sha256": {
+      "lib/pathtracing/output.d.ts": "179c92bcb32a6eb14ae0175560aa20163b2f4339002616d0ab40ca3f5e0985bb",
+      "lib/pathtracing/from-world.d.ts": "50f531e7f52bef5549646aeee19c842ad8e52367ca92ffb9204465b3ee04c3c1",
+      "lib/pathtracing/frame-plan.d.ts": "6b9db9a90d41f371771d475bfe7a2f72ed18b66383fddce52ef745d78cd2279f",
+      "lib/pathtracing/output.js": "fafecd0155a01eeae046b035200069f596b0b5fa781e76cfedea49d532e7d139",
+      "lib/pathtracing/index.d.ts": "ff89747b7926c65741717ddaec381738f91b3d59ae2bc329c1ac1b679f3192de",
+      "lib/pathtracing/output.js.map": "4c9df3292d12d8e48a9f34d97b33a32fc32cf9a497c39be6e648a65039c13648",
+      "lib/pathtracing/prepare-scene.js": "ed3be7487da6f5c96b56edbee37555835d6d8ac33f98e05fc712bc3ecac10bf4",
+      "lib/pathtracing/index.js": "60c0c9c57295fb0190b58d2f63050a32c782314ad1599ed8c3a6ff0664672c8d",
+      "lib/pathtracing/native-view.d.ts": "28c72e89f30f5b29af807b84e4978aec042681228c27c32e99a3bb8b0fae1820",
+      "lib/pathtracing/prepare-scene.js.map": "75fd1c4377c8d760b3eae6bc6aeef868e899b45416496478106f3c139acfd325",
+      "lib/pathtracing/static-refinement.js": "969bc10f7f27c382097958319c3719789789e2eb84706f46c07b57851baf3a89",
+      "lib/pathtracing/oidn-static.d.ts": "2e98b5fbf8815fa6f313573878c2ee47e4e5b27959b5685f5e3a1668a69404ef",
+      "lib/pathtracing/frame-plan.js.map": "479443a2f85d2173990aee8b6d1b16f6673696e5c322cc1112f5854affb34e22",
+      "lib/pathtracing/index.js.map": "a4039401a37889a7758e410d85d1dd47f1316883db4f45d494abe97b3794e5ff",
+      "lib/pathtracing/static-refinement.js.map": "79e8073c55645e3f6a8a55610579eb873c3714d2215c9b35817a7ccc2c84c1a0",
+      "lib/pathtracing/static-refinement.d.ts": "f55c8b1403b1a26b3d01b55d240dbb850293abf1fc6ae873111bc9538d602cfb",
+      "lib/pathtracing/from-world.js.map": "1bee4d776ff25eef20409a510c9b66fd7a59991388ddcdf355743041cd7ee2bd",
+      "lib/pathtracing/native-view.js.map": "fbd7306c5be847109667368d7573bdcc9da0f067793b0c2ced23815f2a0fd64c",
+      "lib/pathtracing/from-world.js": "8bf22652941bd151043c33c1f28400d414b62b6d610be5dbd68db3b5fd921118",
+      "lib/pathtracing/frame-plan.js": "c432656f2a4609f54e67ad330a47ddc54ff70256005f346dc7f1db6c1c50ab65",
+      "lib/pathtracing/oidn-static.js.map": "f810af83de0553a1f512d96f11f665e4b5680ed973295646f9308d254a048ab6",
+      "lib/pathtracing/prepare-scene.d.ts": "920e85f782766be27a04b2a0ccb000ef50d24e6ad69882b59ede88c4ec56dfac",
+      "lib/pathtracing/oidn-static.js": "1cc52defc07b3c0537095f098683d2967ec95d29d4dfe0b2793ec566be8fedcb",
+      "lib/pathtracing/native-view.js": "1472baae9db4d19412c2070afeb4bef4695f9d952270978e62511d7d22644a61",
+      "src/pathtracing/output.ts": "e77dfe65bff1c61eadbe95a4eee1f9d85ade699132e2fb3f1340071c9bc0121b",
+      "src/pathtracing/oidn-static.ts": "55cd91598b72f9d33801fef61efc3aceb70febe4a4361a52a19d6d7250698457",
+      "src/pathtracing/frame-plan.ts": "7c7203dbc39f59bc9d1588e8fd24e663fab68d15c7b63804ca72dd44c1ff018f",
+      "src/pathtracing/index.ts": "10b7bd71d76b32b520c8f65ca6f4049049fe3798459b271b79d4adbb4c18bb45",
+      "src/pathtracing/static-refinement.ts": "5c4927abd931b36cbec7cb3f8866c872445ee282c67514a954bd2e87e17f8bef",
+      "src/pathtracing/native-view.ts": "d134b8a7b5438dc82c70e46445cb0a5e3fbe52a810fd5d2f01c1c4e512636c42",
+      "src/pathtracing/prepare-scene.ts": "e303f443c19d1e97f3d6390ad9979653e29c57ecfa54a0303d306c30043d9bdd",
+      "src/pathtracing/from-world.ts": "5ed0d158ad86413114319a3b6ee588d32b0e0d3a1132c1b367c0630e6ea48593",
+      "tests/quality-view.mjs": "e745c7827a62309af4a7bf5989b349603f916b2141e7891b1b1e40b8799cdb9d",
+      "tests/browser-gpu.mjs": "961f07c3a0b4d21d9c4f1c627602349aa7f2bf846dd2121c06aca1f49f89c406"
+    },
+    "fixtureLog": {
+      "name": "quality-view-gtx1070.log",
+      "sha256": "fc3926531612c0b67063fb193412a055388f826d459654fb99439557c88120be"
+    }
+  },
+  "run": {
+    "startedAt": "2026-10-21T05:30:38Z",
+    "completedAt": "2026-10-21T05:31:02Z",
+    "elapsedMs": 24481,
+    "exitCode": 0,
+    "command": "node tests/quality-view.mjs",
+    "environment": {
+      "HARBOR_GPU_MODE": "hardware",
+      "HARBOR_GPU_EXPECT": "nvidia",
+      "HARBOR_GPU_POWER": "high-performance",
+      "browser": "Microsoft Edge, existing isolated test executable"
+    },
+    "selection": "The isolated browser test uses --force_high_performance_gpu; no software-adapter forcing flag.",
+    "adapter": {
+      "webgpu": [
+        {
+          "vendor": "nvidia",
+          "architecture": "pascal",
+          "device": "",
+          "description": "",
+          "isFallbackAdapter": false
+        }
+      ],
+      "webgl": []
+    },
+    "hardwareAttribution": "The connected Windows node has the GTX 1070 identified in the earlier hardware inventory. This fixture itself reports NVIDIA/Pascal with redacted model fields and isFallbackAdapter=false."
+  },
+  "model": {
+    "file": "rt_hdr_calb_cnrm_large.08130cdc4f33b7a5.tza",
+    "originalFile": "rt_hdr_calb_cnrm_large.tza",
+    "bytes": 7698439,
+    "sha256": "08130cdc4f33b7a513d0073757f089ac830f900613bb5bad72ca42c52b934465",
+    "source": "https://media.githubusercontent.com/media/RenderKit/oidn-weights/28883d1769d5930e13cf7f1676dd852bd81ed9e7/rt_hdr_calb_cnrm_large.tza",
+    "commit": "28883d1769d5930e13cf7f1676dd852bd81ed9e7",
+    "license": "Apache-2.0",
+    "library": {
+      "name": "oidn-web",
+      "version": "0.5.0",
+      "license": "MIT"
+    },
+    "precision": "fp32",
+    "guides": "clean linear albedo; view normals encoded [0,1]"
+  },
+  "result": {
+    "test": "borrowed-native-quality-static-OIDN",
+    "initial": {
+      "meshes": 2,
+      "instances": 2,
+      "uniqueGeometries": 2,
+      "sourceVertices": 48,
+      "compactVertices": 48,
+      "triangles": 24,
+      "expandedTriangles": 24,
+      "geometryBytes": 1824,
+      "estimatedAttributeBytes": 3840,
+      "backend": "webgpu",
+      "implementation": "three-gpu-pathtracer",
+      "width": 32,
+      "height": 24,
+      "revision": 3,
+      "maxBounces": 2,
+      "maxSamples": 0,
+      "frameBudget": 8192,
+      "samplingMode": "complete-frame",
+      "tracingKernel": "megakernel",
+      "tiles": {
+        "columns": 1,
+        "rows": 1,
+        "dispatches": 1,
+        "maxTilePixels": 768
+      },
+      "samples": null,
+      "texturePages": 1,
+      "textureWidth": 1,
+      "textureHeight": 1,
+      "limits": {
+        "maxBufferSize": 2147483648,
+        "maxStorageBufferBindingSize": 2147483644,
+        "maxTextureDimension2D": 16384
+      }
+    },
+    "settled": {
+      "state": "complete",
+      "targetSamples": 64,
+      "samples": {
+        "min": 64,
+        "max": 64,
+        "avg": 64,
+        "samplesPerSecond": 207.52269781111454
+      },
+      "revision": 4,
+      "denoised": true
+    },
+    "raw": {
+      "mean": 0.2691630457916795,
+      "nonfinite": 0,
+      "maximum": 2,
+      "top": [
+        2,
+        0,
+        0
+      ],
+      "bottom": [
+        0,
+        0,
+        2
+      ]
+    },
+    "filtered": {
+      "mean": 0.26792860281917413,
+      "nonfinite": 0,
+      "maximum": 2.126953125,
+      "top": [
+        1.9970703125,
+        0,
+        2.980232238769531e-07
+      ],
+      "bottom": [
+        0,
+        0,
+        2
+      ]
+    },
+    "baseline": {
+      "top": [
+        2,
+        0,
+        0
+      ],
+      "bottom": [
+        0,
+        0,
+        2
+      ]
+    },
+    "guides": {
+      "albedo": {
+        "top": [
+          1,
+          0,
+          0
+        ],
+        "bottom": [
+          0,
+          0,
+          1
+        ]
+      },
+      "normal": {
+        "top": [
+          0.5,
+          0.5,
+          1
+        ],
+        "bottom": [
+          0.5,
+          0.5,
+          1
+        ]
+      }
+    },
+    "live": [
+      {
+        "samples": {
+          "min": 1,
+          "max": 1,
+          "avg": 1,
+          "samplesPerSecond": 624.9999906867745
+        },
+        "image": {
+          "mean": 0.32015931897007655,
+          "nonfinite": 0,
+          "maximum": 2,
+          "top": [
+            2,
+            0,
+            0
+          ],
+          "bottom": [
+            0,
+            0,
+            2
+          ]
+        },
+        "plan": {
+          "meshes": 2,
+          "instances": 2,
+          "uniqueGeometries": 2,
+          "sourceVertices": 48,
+          "compactVertices": 48,
+          "triangles": 24,
+          "expandedTriangles": 24,
+          "geometryBytes": 1824,
+          "estimatedAttributeBytes": 3840,
+          "backend": "webgpu",
+          "implementation": "three-gpu-pathtracer",
+          "width": 32,
+          "height": 24,
+          "revision": 4,
+          "maxBounces": 2,
+          "maxSamples": 0,
+          "frameBudget": 128,
+          "samplingMode": "complete-frame",
+          "tracingKernel": "megakernel",
+          "tiles": {
+            "columns": 3,
+            "rows": 3,
+            "dispatches": 9,
+            "maxTilePixels": 88
+          },
+          "samples": {
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "samplesPerSecond": 624.9999906867745
+          },
+          "texturePages": 1,
+          "textureWidth": 1,
+          "textureHeight": 1,
+          "limits": {
+            "maxBufferSize": 2147483648,
+            "maxStorageBufferBindingSize": 2147483644,
+            "maxTextureDimension2D": 16384
+          }
+        }
+      },
+      {
+        "samples": {
+          "min": 1,
+          "max": 1,
+          "avg": 1,
+          "samplesPerSecond": 666.6666666666666
+        },
+        "image": {
+          "mean": 0.3210784369727347,
+          "nonfinite": 0,
+          "maximum": 2,
+          "top": [
+            2,
+            0,
+            0
+          ],
+          "bottom": [
+            0,
+            0,
+            2
+          ]
+        },
+        "plan": {
+          "meshes": 2,
+          "instances": 2,
+          "uniqueGeometries": 2,
+          "sourceVertices": 48,
+          "compactVertices": 48,
+          "triangles": 24,
+          "expandedTriangles": 24,
+          "geometryBytes": 1824,
+          "estimatedAttributeBytes": 3840,
+          "backend": "webgpu",
+          "implementation": "three-gpu-pathtracer",
+          "width": 32,
+          "height": 24,
+          "revision": 5,
+          "maxBounces": 2,
+          "maxSamples": 0,
+          "frameBudget": 128,
+          "samplingMode": "complete-frame",
+          "tracingKernel": "megakernel",
+          "tiles": {
+            "columns": 3,
+            "rows": 3,
+            "dispatches": 9,
+            "maxTilePixels": 88
+          },
+          "samples": {
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "samplesPerSecond": 666.6666666666666
+          },
+          "texturePages": 1,
+          "textureWidth": 1,
+          "textureHeight": 1,
+          "limits": {
+            "maxBufferSize": 2147483648,
+            "maxStorageBufferBindingSize": 2147483644,
+            "maxTextureDimension2D": 16384
+          }
+        }
+      },
+      {
+        "samples": {
+          "min": 1,
+          "max": 1,
+          "avg": 1,
+          "samplesPerSecond": 476.19047078415923
+        },
+        "image": {
+          "mean": 0.32341027329675853,
+          "nonfinite": 0,
+          "maximum": 2,
+          "top": [
+            2,
+            0,
+            0
+          ],
+          "bottom": [
+            0,
+            0,
+            2
+          ]
+        },
+        "plan": {
+          "meshes": 2,
+          "instances": 2,
+          "uniqueGeometries": 2,
+          "sourceVertices": 48,
+          "compactVertices": 48,
+          "triangles": 24,
+          "expandedTriangles": 24,
+          "geometryBytes": 1824,
+          "estimatedAttributeBytes": 3840,
+          "backend": "webgpu",
+          "implementation": "three-gpu-pathtracer",
+          "width": 32,
+          "height": 24,
+          "revision": 6,
+          "maxBounces": 2,
+          "maxSamples": 0,
+          "frameBudget": 128,
+          "samplingMode": "complete-frame",
+          "tracingKernel": "megakernel",
+          "tiles": {
+            "columns": 3,
+            "rows": 3,
+            "dispatches": 9,
+            "maxTilePixels": 88
+          },
+          "samples": {
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "samplesPerSecond": 476.19047078415923
+          },
+          "texturePages": 1,
+          "textureWidth": 1,
+          "textureHeight": 1,
+          "limits": {
+            "maxBufferSize": 2147483648,
+            "maxStorageBufferBindingSize": 2147483644,
+            "maxTextureDimension2D": 16384
+          }
+        }
+      }
+    ],
+    "runtime": {
+      "state": "complete",
+      "precision": "fp32",
+      "model": "rt_hdr_calb_cnrm_large.tza",
+      "runtime": {
+        "configuredEngine": "wgsl",
+        "gpuEngine": "wgsl",
+        "precision": "fp32",
+        "kernel": {
+          "configured": "auto",
+          "gemm": {
+            "tilePolicy": "output-aligned",
+            "decoderLoad": "per-load",
+            "poolLayout": "channels",
+            "sharedLayout": "padded",
+            "accumulationOrder": "k-major",
+            "finalLayer": "shared-auto",
+            "loadMode": "native",
+            "addressMode": "incremental",
+            "weightLayout": "k-major",
+            "rowsPerThread": 8,
+            "workgroupSize": [
+              8,
+              8
+            ]
+          },
+          "maxSpatialInputBlocks": 0,
+          "subgroupsAvailable": false
+        },
+        "resources": {
+          "live": 68,
+          "created": 68,
+          "destroyed": 0,
+          "peakLive": 68,
+          "pending": 0,
+          "byKind": {
+            "gpu-buffer": {
+              "created": 68,
+              "destroyed": 0,
+              "live": 68,
+              "peakLive": 68
+            }
+          }
+        },
+        "model": "oidn-unet-large-v1",
+        "modelFamily": "oidn-unet-large",
+        "inputChannels": 9,
+        "hdrTransfer": "pu",
+        "dynamicTile": {
+          "enabled": false,
+          "currentTileSize": 32,
+          "minTileSize": 32,
+          "maxTileSize": 32,
+          "targetTileTimeMs": 16
+        },
+        "lastExecution": {
+          "width": 32,
+          "height": 24,
+          "tileCount": 1,
+          "tileColumns": 1,
+          "tileRows": 1,
+          "tileOverlap": 112,
+          "inputPixelCount": 1024,
+          "inputShapeCount": 1,
+          "durationMs": 95.19999998807907,
+          "tileTimeMs": {
+            "min": 94.89999997615814,
+            "median": 94.89999997615814,
+            "mean": 94.89999997615814,
+            "max": 94.89999997615814
+          }
+        },
+        "activeExecutionCount": 0
+      }
+    },
+    "preservedPolicy": true,
+    "staleImmediatelyRaw": true,
+    "resetState": "sampling",
+    "cycles": [
+      true,
+      true,
+      true
+    ],
+    "sourceDisposals": 0,
+    "sourceBVHPreserved": true,
+    "sourceIndexPreserved": true,
+    "deviceFeatures": [
+      "core-features-and-limits"
+    ],
+    "graphics": {
+      "webgpu": [
+        {
+          "vendor": "nvidia",
+          "architecture": "pascal",
+          "device": "",
+          "description": "",
+          "isFallbackAdapter": false
+        }
+      ],
+      "webgl": []
+    },
+    "errors": []
+  },
+  "limits": [
+    "32x24, 2 meshes, 24 triangles, 2 bounces; this is a correctness fixture.",
+    "The 95.2 ms OIDN execution observation covers one 32x24 invocation after setup, not full-city or HD inference latency.",
+    "Dynamic complete-frame checks change camera, transforms and environment, render once, then read back; they do not establish a sustained game frame rate.",
+    "Three disposal cycles and caller-owned source retention were exercised. Long-duration memory, thermals, power, mobile adapters and full-application image quality require separate evidence."
+  ]
+}

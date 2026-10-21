@@ -2,7 +2,7 @@
   "name": "@harbor/engine",
   "version": "0.2.0",
   "private": true,
-  "description": "An AI-friendly modular Web 3D runtime with GPU-free simulation",
+  "description": "面向 AI 辅助开发的模块化 Web 3D 引擎。Modular Web 3D engine for AI-assisted games, native Three.js applications and GPU-free simulation.",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -79,7 +79,8 @@
     "check:consumer": "npm run build:engine && node tools/check-consumer.mjs",
     "test:render": "node tests/render-lifecycle.mjs",
     "assets": "tsx tools/assets.ts",
-    "test:quality": "npm run build:engine && node tests/pathtracing.mjs",
+    "test:quality": "npm run build:engine && node tests/pathtracing.mjs && node tests/quality-view.mjs",
+    "test:quality:view": "npm run build:engine && node tests/quality-view.mjs",
     "bench:gpu": "node tests/gpu-benchmark.mjs"
   },
   "dependencies": {

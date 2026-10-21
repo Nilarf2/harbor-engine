@@ -20,6 +20,17 @@ test('hardware browser launch preserves native adapter selection and finds Windo
   assert.throws(() => browserLaunchOptions({}, 'linux', () => false), /CHROMIUM_PATH/);
 });
 
+test('Windows browser discovery handles mixed-case or missing installation environment', () => {
+  const located = 'D:/Apps/Microsoft/Edge/Application/msedge.exe';
+  const mixed = browserLaunchOptions({ HARBOR_GPU_MODE: 'hardware', ProgramFiles: 'D:/Apps' }, 'win32', (path: string) => path.replaceAll('\\', '/') === located);
+  assert.equal(mixed.executablePath.replaceAll('\\', '/'), located);
+  const fixed = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
+  assert.equal(browserLaunchOptions({ HARBOR_GPU_MODE: 'hardware' }, 'win32', (path: string) => path === fixed).executablePath, fixed);
+  assert.throws(() => browserLaunchOptions({ HARBOR_GPU_MODE: 'hardware' }, 'win32', () => false), /CHROMIUM_PATH/);
+  const explicit = 'Z:/Portable/edge.exe';
+  assert.equal(browserLaunchOptions({ CHROMIUM_PATH: explicit }, 'win32', () => true).executablePath, explicit);
+});
+
 test('hardware evidence rejects software, missing identity and the wrong target GPU', () => {
   const evidence = (description: string, isFallbackAdapter = false) => ({ webgpu: [{ description, isFallbackAdapter }], webgl: [] });
   validateGraphicsEvidence(evidence('NVIDIA GeForce GTX 1070'), 'hardware', 'GTX 1070');

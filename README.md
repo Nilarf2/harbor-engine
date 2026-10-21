@@ -72,6 +72,10 @@ The root module has no Three.js or GPU dependency; `Scope.listen()` accepts stan
 
 Omitting mode selects raster; pathtrace defaults to quality. Tracing requires WebGPU on HTTPS or localhost. Neither tracer claims a standard hardware RT-core API. Upstream features are broader than the tested subset; custom TSL/MToon materials, deformation and dynamic geometry need explicit conversion, synchronization and validation. Interactive rendering and static refinement use different sample budgets.
 
+`createPathTracingView()` 借用原生应用的 renderer，默认每次 `render()` 完成一个完整分辨率样本，按 `frameBudget` 分成有限个 megakernel tile；`samplingMode: 'progressive'` 可显式选择单 tile 推进。输出是线性 HDR，由应用统一执行最终色调映射和显示转换。此合同不改变 `createGame()` quality facade 的现有调度。
+
+The borrowed native view completes one full-resolution sample per render through bounded megakernel tiles by default. Explicit progressive mode advances one tile. Its output remains linear HDR for the application's final display conversion. Existing `createGame()` quality scheduling remains compatible.
+
 OIDN 权重与许可在包内同源提供；应用负责复制和配置资源 URL。是否成功降噪以当前设备和测试记录为准。Blender 资产请看 [Blender workflow](docs/BLENDER.md)，渲染和所有权细节请看 [Architecture](docs/ARCHITECTURE.md)。
 
 OIDN weights and notices are packaged for same-origin use; applications copy them and configure their URLs. Denoising acceptance is device- and test-specific. See the linked Blender and architecture guides for asset and ownership details.
