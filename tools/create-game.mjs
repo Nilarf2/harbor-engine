@@ -1,7 +1,7 @@
 import { cp, copyFile, lstat, mkdir, mkdtemp, readFile, readdir, rename, rm, rmdir, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { basename, dirname, join, relative, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -21,7 +21,9 @@ export async function createGameProject(input) {
   await destinationState(destination);
   const templateRoot = join(engineRoot, 'templates/minimal');
   const withinTemplates = relative(join(engineRoot, 'templates'), destination);
-  if (!withinTemplates.startsWith('..') && !withinTemplates.startsWith('/')) throw new Error('Create games outside the engine templates directory');
+  // Windows relative() returns an absolute path when the destination is on a
+  // different drive. That is outside templates, just like a parent-relative path.
+  if (!isAbsolute(withinTemplates) && withinTemplates !== '..' && !withinTemplates.startsWith(`..${sep}`)) throw new Error('Create games outside the engine templates directory');
   for (const file of ['lib/core/index.js', 'lib/browser/index.js']) {
     try { await lstat(join(engineRoot, file)); }
     catch { throw new Error('Build the engine first: npm run build:engine'); }
