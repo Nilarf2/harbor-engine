@@ -14,7 +14,8 @@ async function walk(directory) {
 }
 await walk(root);
 if (!files.some(f => f.path === 'index.html')) throw new Error('dist/index.html missing');
-const manifest = { engine: '@harbor/engine', version: '0.1.0', entry: 'index.html', static: true, isolatedRequired: false, bytes: files.reduce((s,f)=>s+f.bytes,0), files };
+const { version } = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
+const manifest = { engine: '@harbor/engine', version, entry: 'index.html', static: true, isolatedRequired: false, bytes: files.reduce((s,f)=>s+f.bytes,0), files };
 await writeFile('dist/harbor-manifest.json', JSON.stringify(manifest, null, 2));
 await mkdir('deliverables', { recursive: true });
 // A fresh archive prevents obsolete files from surviving subsequent exports.

@@ -1,4 +1,18 @@
-# Validation record
+# Validation record · 验证记录
+
+## 0.2 integration CPU acceptance · 0.2 集成 CPU 验收
+
+2026-10-21：当前 0.2 集成工作树的 `npm run check` 通过 84 项 Node 测试、TypeScript、引擎声明构建与 Vite 生产构建。新增应用宿主测试覆盖 latest-load-wins、取消信号与晚到资源释放顺序、load/restore/enter 失败保留旧场景、禁止复用已管理实例、根异步释放、秒更新/RAF 限制与恢复，以及 Scope、原始存档、剧情与空间索引。现有 fixed World 行为测试继续通过。
+
+On 2026-10-21, `npm run check` passed 84 Node tests, TypeScript, package declarations and the Vite production build in the 0.2 integration tree. New runtime checks cover transition races, immediate cancellation/deferred cleanup, preparation/activation rollback, instance ownership, root async disposal, seconds/RAF clock behavior, Scope, raw saves, story and spatial indexing. Existing fixed-World tests continue to pass.
+
+`npm run check:consumer` 在 Linux 真实通过：在引擎工作区外创建独立游戏，只从 vendor tarball 安装；场景验证、180 tick 模拟、生产构建、公开 CPU 模块导入和全部 11 个 exports 目标通过。同源 OIDN 权重进入 dist，长度 7,698,439 字节、SHA-256 为 `08130cdc4f33b7a513d0073757f089ac830f900613bb5bad72ca42c52b934465`。生成器在包含空格的路径验收；未使用跨仓库源码导入。
+
+The Linux independent consumer passed a tarball-only installation outside the checkout, validation, 180 simulation ticks, production build, public CPU imports and all 11 export targets. Its dist contains same-origin OIDN weights with the length/hash above. A path containing spaces was exercised; no cross-repository source import was used.
+
+CI 已配置 Ubuntu/Windows CPU 矩阵和相同独立 consumer 检查；此处不把配置存在当成 Windows 实际通过。0.2 新渲染、降噪和 Dragon 应用的 GPU 验收另行记录，下方 0.1 GTX 1070 历史证据不自动覆盖新代码。
+
+CI is configured for Ubuntu/Windows CPU checks and the same independent consumer. Configuration alone is not a recorded Windows pass. New rendering/denoising and Dragon GPU acceptance are tracked separately; the historical GTX 1070 evidence below applies to its recorded revision.
 
 Last updated: 2026-10-21. Status: experimental alpha. The latest checks include CPU/build acceptance, the complete native graphics suite on a GTX 1070, and four short quality-tracing measurements. Earlier software-graphics, extracted-demo, and independent-game results from 2026-10-18 are retained below. Each record establishes its stated scope; a short run on one desktop GPU does not establish mobile or general game performance.
 

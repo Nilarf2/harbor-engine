@@ -2,6 +2,7 @@ import { cp, copyFile, lstat, mkdir, mkdtemp, readFile, readdir, rename, rm, rmd
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, relative, resolve } from 'node:path';
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const engineRoot = fileURLToPath(new URL('../', import.meta.url));
@@ -28,8 +29,14 @@ export async function createGameProject(input) {
   const packDirectory = await mkdtemp(join(tmpdir(), 'harbor-package-'));
   let staging;
   try {
-    const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-    const output = execFileSync(npm, ['pack', '--offline', '--ignore-scripts', '--json', '--pack-destination', packDirectory], {
+    // Windows cannot exec a .cmd file directly. Invoke npm's JS entry without
+    // introducing a shell or interpolating destination paths into shell text.
+    const npmEntry = [process.env.npm_execpath, join(dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js')]
+      .find(path => path && /(?:npm|npm-cli)\.js$/.test(path) && existsSync(path));
+    if (process.platform === 'win32' && !npmEntry) throw new Error('Cannot find npm CLI; run through npm run create-game');
+    const command = npmEntry ? process.execPath : 'npm';
+    const args = [...(npmEntry ? [npmEntry] : []), 'pack', '--offline', '--ignore-scripts', '--json', '--pack-destination', packDirectory];
+    const output = execFileSync(command, args, {
       cwd: engineRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 4 * 1024 * 1024,
     });
     const [packed] = JSON.parse(output);
@@ -42,6 +49,7 @@ export async function createGameProject(input) {
     const licenseDirectory = join(staging, 'public/licenses');
     await mkdir(licenseDirectory, { recursive: true });
     await cp(join(engineRoot, 'public/licenses'), licenseDirectory, { recursive: true });
+    await cp(join(engineRoot, 'public/oidn'), join(staging, 'public/oidn'), { recursive: true });
     await copyFile(join(engineRoot, 'NOTICE.md'), join(licenseDirectory, 'NOTICE.md'));
     await mkdir(join(staging, 'vendor'));
     await copyFile(join(packDirectory, packed.filename), join(staging, 'vendor/engine.tgz'));

@@ -5,7 +5,6 @@ export interface PlatformAdapter {
   load<T>(key: string, validate: (value: unknown) => value is T): T | undefined;
   dispose(): void;
 }
-
 /** Standalone/iframe baseline. Host SDKs implement this interface in the game. */
 export function createBrowserPlatform(namespace: string, storage?: Pick<Storage, 'getItem' | 'setItem'>): PlatformAdapter {
   if (!/^[a-zA-Z0-9_.-]+$/.test(namespace)) throw new Error('Invalid save namespace');
@@ -34,3 +33,5 @@ export function createBrowserPlatform(namespace: string, storage?: Pick<Storage,
     dispose() { memory.clear(); },
   };
 }
+export { SaveStore } from './SaveStore.js';
+export type { SaveStorage, SaveStoreOptions } from './SaveStore.js';

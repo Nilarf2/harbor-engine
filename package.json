@@ -1,6 +1,6 @@
 {
   "name": "@harbor/engine",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "An AI-friendly modular Web 3D runtime with GPU-free simulation",
   "type": "module",
@@ -40,6 +40,18 @@
     "./pathtracing": {
       "types": "./lib/pathtracing/index.d.ts",
       "import": "./lib/pathtracing/index.js"
+    },
+    "./application": {
+      "types": "./lib/application/index.d.ts",
+      "import": "./lib/application/index.js"
+    },
+    "./narrative": {
+      "types": "./lib/narrative/index.d.ts",
+      "import": "./lib/narrative/index.js"
+    },
+    "./spatial": {
+      "types": "./lib/spatial/index.d.ts",
+      "import": "./lib/spatial/index.js"
     }
   },
   "files": [
@@ -49,6 +61,7 @@
     "LICENSE",
     "NOTICE.md",
     "public/licenses",
+    "public/oidn",
     "AGENTS.md"
   ],
   "scripts": {
@@ -63,6 +76,7 @@
     "scene": "tsx tools/scene.ts",
     "export": "npm run build && node tools/export.mjs",
     "check": "npm run test && npm run build",
+    "check:consumer": "npm run build:engine && node tools/check-consumer.mjs",
     "test:render": "node tests/render-lifecycle.mjs",
     "assets": "tsx tools/assets.ts",
     "test:quality": "npm run build:engine && node tests/pathtracing.mjs",
@@ -72,6 +86,7 @@
     "@dimforge/rapier3d-compat": "0.21.0",
     "@types/three": "0.186.0",
     "@webgpu/types": "0.1.74",
+    "oidn-web": "0.5.0",
     "three": "0.186.1",
     "three-gpu-pathtracer": "0.0.27",
     "three-mesh-bvh": "0.9.15",
