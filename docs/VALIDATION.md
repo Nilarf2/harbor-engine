@@ -1,8 +1,53 @@
-# Validation record
+# Validation record · 验证记录
 
-Last updated: 2026-10-21. Status: experimental alpha. The latest checks include CPU/build acceptance, the complete native graphics suite on a GTX 1070, and four short quality-tracing measurements. Earlier software-graphics, extracted-demo, and independent-game results from 2026-10-18 are retained below. Each record establishes its stated scope; a short run on one desktop GPU does not establish mobile or general game performance.
+## 0.2 integration CPU acceptance · 0.2 集成 CPU 验收
 
-## CPU and build checks
+2026-10-21：当前 0.2 集成工作树的 Node 测试、TypeScript、引擎声明构建与 Vite 生产构建均通过，共 94 项测试。新增应用宿主测试覆盖 latest-load-wins、取消信号与晚到资源释放顺序、load/restore/enter 失败保留旧场景、禁止复用已管理实例、根异步释放、秒更新/RAF 限制与恢复，以及 Scope、原始存档、剧情与空间索引。完整帧 tile 规划还验证每个像素恰好覆盖一次、每次 dispatch 的活动像素不超预算，以及异常预算在渲染前失败。现有 fixed World 行为测试继续通过。
+
+On 2026-10-21, 94 Node tests, TypeScript, package declarations and the Vite production build passed in the 0.2 integration tree. New runtime checks cover transition races, immediate cancellation/deferred cleanup, preparation/activation rollback, instance ownership, root async disposal, seconds/RAF clock behavior, Scope, raw saves, story and spatial indexing. Complete-frame tile plans cover every pixel exactly once within the active-pixel budget per dispatch, and reject unbounded work before rendering. Existing fixed-World tests continue to pass.
+
+最终私有几何准备还验证 321 个有序材质组按 ≤128 组分片，保留 triangle/material 顺序与实例；嵌套非均匀变换、手动 world 矩阵、skin 世界顶点、共享私有 skeleton 一次释放、父级 visibility，以及空 LOD 的非渲染 scaffold 均有真实 CPU 回归。空 skin/instance 在 drawRange 恢复后，实际上游 material/TLAS packing 再次通过。最新容量检查还将分散在不同几何上的 UV 通道按全场景并集合并，并与实际上游 packed vertex binding 字节数逐项相等。对应 Node/type/build 日志分别为 `tests/artifacts/attribute-union-all-tests.log`、`attribute-union-typecheck.log` 与 `attribute-union-build.log`。这些诊断文件不随包分发。
+
+Final preparation checks cover ordered ≤128-group partitions, unchanged triangle/material order and instances, nested nonuniform transforms, manual world matrices, skinned world positions, exactly-once private skeleton release, inherited visibility and empty LOD scaffolds. Empty skin/instance draw ranges recover and pass actual upstream material/TLAS packing again. The scene-wide UV-union capacity test matches the actual upstream single packed vertex binding, including channels present on separate geometries. The named local logs retain CPU/type/build observations and are not distributed in the package.
+
+`npm run check:consumer` 在 Linux 真实通过：在引擎工作区外创建独立游戏，只从 vendor tarball 安装；场景验证、180 tick 模拟、生产构建、公开 CPU 模块导入和全部 11 个 exports 目标通过。同源 OIDN 权重进入 dist，长度 7,698,439 字节、SHA-256 为 `08130cdc4f33b7a513d0073757f089ac830f900613bb5bad72ca42c52b934465`。生成器在包含空格的路径验收；未使用跨仓库源码导入。
+
+The Linux independent consumer passed a tarball-only installation outside the checkout, validation, 180 simulation ticks, production build, public CPU imports and all 11 export targets. Its dist contains same-origin OIDN weights with the length/hash above. A path containing spaces was exercised; no cross-repository source import was used.
+
+Ubuntu 与 Windows 的 GitHub Actions 在 `b9ba478251a994fc4ceaad9fdff881297bfd9736` 均真实通过：[验收运行](https://github.com/Nilarf2/harbor-engine/actions/runs/39553394170)。两平台均执行 locked install、94 项测试、type/build、模型检查和独立 consumer。Windows 首轮暴露跨盘路径判断问题：D: checkout 到 C: 临时目录被误认作模板子目录；修复后重新运行通过，未绕过任何检查。0.2 图形与 Dragon 应用的 GPU 验收另行记录，下方 0.1 历史证据不自动覆盖新代码。
+
+Both Ubuntu and Windows GitHub Actions passed on the linked revision, including locked installation, 94 tests, type/build checks, model inspection and the independent consumer. The first Windows run exposed a generator cross-drive check: a C: temporary destination was rejected from a D: checkout. The corrected path check passed a fresh run without bypassing validation. Graphics and Dragon application acceptance are recorded separately; historical evidence below applies to its original revision.
+
+## 0.2 native quality software acceptance · 原生质量视图软件验收
+
+`npm run test:quality:view` 在 SwiftShader WebGPU 适配器上真实通过，日志为 `tests/artifacts/quality-view-complete-frame-software.log`。32 × 24 原生借用视图达到 minimum 64 spp，使用同源 OIDN large FP32 模型完成 HDR 降噪；raw 与 denoised 输出保留大于 1 的线性值，上下方向与 raster 基线一致，没有非有限读回值或收集到的错误。三轮创建/释放保留来源 BVH、index、材质和纹理，来源资源未被释放。
+
+The borrowed native view passed `npm run test:quality:view` on a SwiftShader WebGPU adapter: minimum 64 spp at 32 × 24, same-origin OIDN large FP32 denoising, linear HDR values above 1, matching raster orientation, finite readbacks and no collected errors. Three create/dispose cycles preserved source BVH/index and caller-owned resources. This establishes functionality in the fixture, without a hardware-performance claim.
+
+新的 `createPathTracingView()` 默认每次 `render()` 完成一个完整分辨率样本，通过有上界的 megakernel tile 循环执行；`frameBudget` 限制每个 dispatch 的活动像素数，不通过降低输出分辨率达到预算。`samplingMode: 'progressive'` 显式选择每次一个 tile。旧的 `createPathTracingRenderer()` / `createGame()` quality facade 仍使用其已有调度，历史 wavefront benchmark 不能被解释为新视图的帧率。
+
+`createPathTracingView()` completes one full-resolution sample per `render()` by default through a finite megakernel tile cycle. `frameBudget` bounds active pixels per dispatch while retaining output resolution; explicit `samplingMode: 'progressive'` advances one tile. The existing quality renderer/facade keeps its established scheduling. Its historical wavefront measurements do not describe the new view's frame rate.
+
+## 0.2 native quality GTX 1070 acceptance · 原生质量视图显卡验收
+
+2026-10-21，Windows 节点上的独立 Edge 进程以硬件模式通过原生借用视图测试（exit 0，整次运行 24.481 秒）。适配器报告 NVIDIA/Pascal、`isFallbackAdapter: false`；节点 GTX 1070 的归属依据与同步包、源码/编译文件 SHA-256 见[独立结构化记录](validation/native-quality-gtx1070-2026-10-21.json)。运行前 Windows 校验两个同步 ZIP 的 SHA-256，再解包；代码补丁内全部 34 项也与中心验收树逐字节一致。此记录不声称本轮逐一重新读取远端解包文件 hash。
+
+The isolated Edge hardware run passed with exit 0 in 24.481 seconds. The adapter reported NVIDIA/Pascal and no fallback. The linked record distinguishes node attribution, verified transfer archives and exact code hashes. Both archive hashes were checked on Windows before extraction; all 34 code-patch entries also match the accepted build checkout. This is archive-identity evidence rather than a separate remote hash of each extracted file.
+
+| 检查 · Check | 实测结果 · Recorded result |
+| --- | --- |
+| 静帧 / Static refinement | 32 × 24、2 meshes、24 triangles、2 bounces；minimum/maximum/average 64 spp；OIDN large FP32 完成；设备未请求 `shader-f16` / Completed at 64 spp without requiring optional FP16 |
+| 线性图像与 guides / HDR and guides | Raw max 2，denoised max 2.126953125；非有限值 0；raw、denoised、albedo、normal 与 raster 上下方向一致 / Finite HDR values and matching orientation |
+| 动态完整帧 / Dynamic complete frame | 连续 3 次改变相机、变换和环境后，每次一次 render 得到 min/max/avg 1 spp；每帧 3 × 3 tiles，最大 88 活动像素 ≤ 128 预算，读回有限且非黑 / One complete sample after each dirty frame within tile budget |
+| 生命周期 / Lifecycle | 三轮释放通过；调用者来源 BVH/index 保留、来源资源未释放；陈旧降噪立即回到 raw；错误集合为空 / Three cycles, retained borrowed resources, stale-result fallback and no collected errors |
+
+OIDN 单次 32 × 24 推理观测为 95.2 ms；它不包含整个初始化，不能推断 1280 × 720 延迟或全城帧率。此处只验收小场景功能。Dragon 的完整城市、交互、冻结细化、容量与发布另行验收，未由本记录替代。
+
+The observed OIDN invocation took 95.2 ms at 32 × 24 after setup. It does not establish 1280 × 720 denoising latency or full-city FPS. Dragon city capacity, interaction, frozen refinement and publication require their own acceptance.
+
+The following 0.1 records are retained from 2026-10-21 and 2026-10-18. They cover their original CPU/build, native graphics, short measurements and independent-game checks. They do not substitute for the 0.2 records above or Dragon application acceptance. Each record establishes its stated scope; a short run on one desktop GPU does not establish mobile or general game performance.
+
+## 0.1 CPU and build checks · 历史记录
 
 | Check | Recorded result | Scope |
 | --- | --- | --- |
@@ -14,7 +59,7 @@ The latest complete CPU/build log is `tests/artifacts/final-check.log`. Test art
 
 The GLB test model's lossless candidate changed raw size from 38,088 to 17,188 bytes, while gzip changed from 3,082 to 3,804 bytes and Brotli from 2,425 to 3,051 bytes. The tool reports this regression explicitly; the bundled original was not replaced. These are one asset's results, not an expected compression ratio for other content.
 
-## 2026-10-21 GTX 1070 hardware checks
+## 0.1 GTX 1070 hardware checks · 2026-10-21 历史记录
 
 Configuration: Windows 11 x64, Core i7-8700, 8 GiB system RAM, GTX 1070 with 8 GiB VRAM, NVIDIA driver 31.0.15.5222 (552.22), Node 24.22.0, and headless Microsoft Edge 155.0.4283.62. Tests ran sequentially. The [machine-readable record](validation/gtx1070-2026-10-21.json) contains settings, observed adapters, readbacks, lifecycle results, benchmark data, the base commit, and SHA-256 values for the changed source/test files. The synchronized Windows files matched those hashes before execution. The final benchmark runner was separately synchronized and verified after extending its measurement window.
 

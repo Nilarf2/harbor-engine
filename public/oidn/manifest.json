@@ -1,0 +1,16 @@
+{
+  "file": "rt_hdr_calb_cnrm_large.08130cdc4f33b7a5.tza",
+  "originalFile": "rt_hdr_calb_cnrm_large.tza",
+  "bytes": 7698439,
+  "sha256": "08130cdc4f33b7a513d0073757f089ac830f900613bb5bad72ca42c52b934465",
+  "source": "https://media.githubusercontent.com/media/RenderKit/oidn-weights/28883d1769d5930e13cf7f1676dd852bd81ed9e7/rt_hdr_calb_cnrm_large.tza",
+  "commit": "28883d1769d5930e13cf7f1676dd852bd81ed9e7",
+  "license": "Apache-2.0",
+  "library": {
+    "name": "oidn-web",
+    "version": "0.5.0",
+    "license": "MIT"
+  },
+  "precision": "fp32",
+  "guides": "clean linear albedo; view normals encoded [0,1]"
+}

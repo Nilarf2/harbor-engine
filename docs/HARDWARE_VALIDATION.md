@@ -40,6 +40,10 @@ The expectation matches only information the browser exposes. `GTX 1070` require
 
 The functional scripts default to `software` mode unless `HARBOR_GPU_MODE` is set. `bench:gpu` defaults to `hardware`. Set the mode explicitly in reproducible runs.
 
+硬件脚本统一使用 `HARBOR_GPU_MODE=hardware`、`HARBOR_GPU_EXPECT=nvidia`；Windows 独显运行再设 `HARBOR_GPU_POWER=high-performance`。Harbor helper 不读取 `TEST_GPU`，该变量不能选择硬件模式。包装脚本必须显式传入这些变量，并在开始昂贵的场景准备或收敛前，断言实际测试页面记录的应用 adapter 满足硬件条件。误用软件模式的运行只作为诊断，不计入硬件验收。
+
+Wrappers must set the `HARBOR_GPU_*` variables explicitly. The helper does not read `TEST_GPU`; that variable cannot select hardware mode. Assert hardware evidence from the actual test page before expensive scene preparation or convergence. A run accidentally using software mode is diagnostic evidence and cannot count as hardware acceptance.
+
 ## Functional checks
 
 | Command | Scope | Evidence |

@@ -1,4 +1,8 @@
-# Building games with Harbor
+# Building games with Harbor · 使用 Harbor 开发游戏
+
+先选择应用合同：声明式 World 与固定步长使用 `createGame()`；迁移已有原生 Three.js 场景、TSL 后处理与剧情系统使用 `createApplication()`。后者的 `step(seconds)` 是一次秒更新，前者的 `step(count)` 是固定 tick 数。完整生命周期、取消、旧档兼容与通用剧情/空间模块见 [APPLICATION.md](APPLICATION.md)。游戏内容与平台适配留在独立应用；公共能力变化才修改引擎。
+
+Choose the application contract first: `createGame()` owns a declarative World and fixed ticks; `createApplication()` hosts an existing native Three.js scene, postprocessing and story system. The latter steps in seconds, the former in tick counts. See [APPLICATION.md](APPLICATION.md) for lifecycle, cancellation, legacy saves, story and spatial modules. Keep content and host integration in the independent application.
 
 Harbor is an experimental TypeScript engine for browser 3D games. Start by building game content against its public modules. Keep scene data, gameplay plugins, input, UI, and platform integration in your game application; change engine internals only to fix or deliberately extend a shared capability.
 
@@ -163,7 +167,41 @@ For most applications use `createGame()`. Set `mode: 'pathtrace'` for the qualit
 
 The quality result is `game.pathtracing`, exposing the real `scene`, `camera`, `renderer`, and upstream `pathTracer`. Supply a caller-owned `trace.scene` to render imported GLB meshes, lights, textures and HDR environments alongside the generated world group. The scene bridge does not replace game-specific art with primitives. Configure `trace.frameBudget`, `trace.maxSamples`, `trace.maxBounces`, and internal resolution against the target device; the defaults are not measured budgets for every scene.
 
-A quality `render()` call advances a wavefront workload and does not mean one sample per pixel. `inspect().samples` is cached and may be `null`; `await measureSamples()` performs explicit GPU readback. Camera/scene changes reset accumulation. Denoiser/upscaler classes are exposed as integration points, but Harbor does not supply their external libraries/weights or claim a validated denoised mode. Do not hide low-sample noise behind a claim of convergence.
+The owning `createPathTracingRenderer()` / `createGame()` quality adapter advances a wavefront workload; its `render()` call does not mean one sample per pixel. The native borrowed `createPathTracingView()` below defaults to a bounded complete-frame megakernel cycle instead, completing all pixels in each call; its explicit `samplingMode: 'progressive'` advances one tile. `inspect().samples` is cached and may be `null`; `await measureSamples()` performs explicit GPU readback. Camera/scene changes reset accumulation. Static refinement uses minimum per-pixel samples rather than an average; do not hide low-sample noise behind a claim of convergence.
+
+For an application owning its native renderer, use the borrowed view and a single HDR composition:
+
+```ts
+import {
+  createPathTracingView, createPathTracingOutputNode,
+  createOIDNStaticDenoiser, StaticRefinementController, OIDN_LARGE_WEIGHTS,
+} from '@harbor/engine/pathtracing';
+
+const view = await createPathTracingView({ renderer, scene: physicalProxyScene, camera });
+const denoiser = createOIDNStaticDenoiser({
+  renderer, weightsUrl: new URL(`./oidn/${OIDN_LARGE_WEIGHTS.file}`, document.baseURI),
+});
+const refinement = new StaticRefinementController(view, denoiser, showDenoiseError);
+const output = createPathTracingOutputNode(view.outputTexture);
+// Use output.colorNode as linear HDR input to ONE final RenderPipeline.
+// Keep its default outputColorTransform=true; do not manually tone-map again.
+
+function render() {
+  view.render(); refinement.tick();
+  output.textureNode.value = refinement.outputTexture;
+  finalPipeline.render();
+}
+function refine() {
+  freezeCompleteWorldState(); // Includes clock, weather, trains and skeletal pose.
+  refinement.start({ samples: 64 }); // 256 is the explicit longer refinement option.
+}
+function resume() { refinement.cancel(); resumeWorldState(); }
+async function dispose() { await refinement.dispose(); await view.dispose(); }
+```
+
+These application callbacks/pipeline variables are illustrative. Keep source TSL effects in explicit composition layers or convert them to physical proxy materials; unknown shaders produce object-path diagnostics. Use `view.syncScene({ transforms: true })` for moved rigid objects, `{ geometry: [actor.root] }` for skin/morph deformation, `{ materials: true }`, `{ lights: true }`, `{ environment: true }`, `{ camera: true }`, or `{ topology: true }` as appropriate. Coalesce dirty causes per frame. `view.resize(width,height)` does not resize the caller's renderer or alter camera optics. Source geometry/BVHs remain untouched; the view owns only its compact graph/caches. The application owns renderer/device lifetime and should request actual device limits with `createQualityDevice()` before creating a renderer for large scenes. Catch unavailable WebGPU/adapter/device/capacity errors and offer raster; OIDN failure keeps the raw quality image.
+
+Copy `public/oidn/` and its MIT/Apache license files from the engine package to the application's relative static build root. The 7.7 MB large model is fetched only when refinement is requested; never inline it into HTML or fetch it from a CDN at runtime. Its local manifest pins origin, size and SHA-256, which the loader verifies. Guides use the current private PBR graph and matching camera, with no early tone mapping. Runtime values remain linear HDR; the output helper uses top-down screen coordinates without an extra Y flip and does not require optional float32 filtering or FP16. Validate real inference and guide alignment on the target GPU before claiming support.
 
 For a small, inspectable triangle-tracing experiment, select `trace.backend: 'compact'`, or use its lower-level API:
 
@@ -278,3 +316,5 @@ npm run dev
 Use the local browser preview to inspect controls, rendering errors, and output. A software WebGPU adapter is useful for shader/renderer checks; neither successful compilation nor a screenshot proves real-device performance. Add focused tests for new gameplay invariants and engine bugs. Avoid claiming a check passed unless it was actually run, and preserve diagnostic output when a check fails.
 
 `npm run export` builds and packages the current demo application into `deliverables/harbor-demo-web.zip`, with a content manifest in `dist/harbor-manifest.json`. A new game's application must be wired into the build before using that export. Keep relative asset paths and upload all build files. Verify host-specific iframe permissions, storage, package limits, input, audio activation, and actual WebGPU availability against the selected platform. A generic export is not proof of a completed Bilibili Toy or VibeHub integration.
+
+原生应用应以 `createPathTracingView` 复用共享 renderer，默认完整帧模式会完成所有有界 tile；如显式选择 progressive，调用方必须承认它只是逐块推进。精修必须冻结完整世界状态，等待最小像素采样达到 64/256，再加载随应用同源打包、固定 SHA 的 OIDN 权重。初始化、推理或取消失败都保留 raw HDR；用同一代理场景/相机生成导引，最终合成只执行一次色调映射和输出转换。真实 GPU、朝向和最终复合画面通过前不能声明硬件支持。

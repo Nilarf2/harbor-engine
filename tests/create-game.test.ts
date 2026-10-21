@@ -23,8 +23,7 @@ test('project generator bundles a portable local engine without installing depen
   const directory = await mkdtemp(join(tmpdir(), 'harbor-generator-portable-'));
   try {
     // The public generator packages compiled exports, exactly as its npm script does.
-    const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-    execFileSync(npm, ['run', 'build:engine'], { cwd: root, encoding: 'utf8', stdio: 'pipe' });
+    execFileSync(process.execPath, [join(root, 'node_modules/typescript/bin/tsc'), '-p', 'tsconfig.lib.json'], { cwd: root, encoding: 'utf8', stdio: 'pipe' });
     const destination = join(directory, 'My New Game'); await mkdir(destination);
     const result = JSON.parse(execFileSync(process.execPath, [cli, destination], { cwd: root, encoding: 'utf8' }));
     assert.equal(result.ok, true); assert.equal(result.directory, destination);
@@ -35,12 +34,19 @@ test('project generator bundles a portable local engine without installing depen
     const files = execFileSync('tar', ['-tzf', archive], { encoding: 'utf8' });
     assert.match(files, /package\/lib\/browser\/index\.js/);
     assert.match(files, /package\/lib\/core\/index\.js/);
+    assert.match(files, /package\/lib\/application\/index\.js/);
+    assert.match(files, /package\/lib\/narrative\/index\.js/);
+    assert.match(files, /package\/lib\/spatial\/index\.js/);
+    assert.match(files, /package\/public\/oidn\/manifest\.json/);
     assert.match(files, /package\/docs\/AI_GUIDE\.md/);
     assert.match(await readFile(join(destination, 'public/licenses/three-gpu-pathtracer.txt'), 'utf8'), /Garrett Johnson/);
     assert.match(await readFile(join(destination, 'public/licenses/three-mesh-bvh.txt'), 'utf8'), /Garrett Johnson/);
     assert.match(await readFile(join(destination, 'public/licenses/NOTICE.md'), 'utf8'), /Notices and attribution/);
     const packedManifest = JSON.parse(execFileSync('tar', ['-xOf', archive, 'package/package.json'], { encoding: 'utf8' }));
     assert.ok(packedManifest.exports['./browser'], 'packed engine exposes the facade');
+    assert.ok(packedManifest.exports['./application'], 'packed engine exposes the native application host');
+    const oidn = JSON.parse(await readFile(join(destination, 'public/oidn/manifest.json'), 'utf8'));
+    assert.ok(oidn, 'generated game has local denoising resources');
     assert.match(await readFile(join(destination, 'src/main.ts'), 'utf8'), /createGame/);
     assert.ok(!(await readFile(join(destination, 'src/main.ts'), 'utf8')).includes(root));
     await assert.rejects(access(join(destination, 'node_modules')));

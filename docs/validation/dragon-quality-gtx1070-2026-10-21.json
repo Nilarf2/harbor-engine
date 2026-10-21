@@ -1,0 +1,342 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-21",
+  "engineVersion": "0.2.0",
+  "scope": "Dragon Raja full-city integration at 1280x720, native borrowed renderer; recorded stages are not a general frame-rate or sustained-memory guarantee.",
+  "coverageStatus": "blocked by observed resource retirement defect; correction and resumed hardware coverage pending",
+  "adapterAttribution": "Application reported NVIDIA/Pascal without fallback. GTX 1070 attribution also relies on the single-NVIDIA-node inventory recorded by the native fixture evidence.",
+  "browser": "155.0.4283.62",
+  "graphics": {
+    "webgpu": [
+      {
+        "vendor": "nvidia",
+        "architecture": "pascal",
+        "device": "",
+        "description": "",
+        "isFallbackAdapter": false
+      }
+    ],
+    "webgl": []
+  },
+  "firstFrameRun": {
+    "outcome": "passed",
+    "exitCode": 0,
+    "processDurationMs": 73227,
+    "applicationReady": {
+      "elapsedMs": 68204,
+      "scene": "baishinji",
+      "resolution": [
+        1280,
+        720
+      ],
+      "maxBounces": 15,
+      "samplingMode": "complete-frame",
+      "tiles": {
+        "columns": 2,
+        "rows": 2,
+        "dispatches": 4,
+        "maxTilePixels": 230400
+      },
+      "frameBudget": 250000,
+      "samples": {
+        "min": 1,
+        "max": 1,
+        "avg": 1
+      },
+      "refinement": {
+        "state": "idle",
+        "targetSamples": 64,
+        "samples": null,
+        "revision": -1,
+        "denoised": false
+      },
+      "sourceMeshes": 1474,
+      "sourceInstances": 60896,
+      "expandedTriangles": 4658630,
+      "compactVertices": 7893563,
+      "texturePages": 4
+    },
+    "dynamicCompleteFrames": [
+      {
+        "wallMs": 955,
+        "samples": {
+          "min": 1,
+          "max": 1,
+          "avg": 1
+        },
+        "tiles": {
+          "columns": 2,
+          "rows": 2,
+          "dispatches": 4,
+          "maxTilePixels": 230400
+        },
+        "errors": []
+      },
+      {
+        "wallMs": 865,
+        "samples": {
+          "min": 1,
+          "max": 1,
+          "avg": 1
+        },
+        "tiles": {
+          "columns": 2,
+          "rows": 2,
+          "dispatches": 4,
+          "maxTilePixels": 230400
+        },
+        "errors": []
+      },
+      {
+        "wallMs": 815,
+        "samples": {
+          "min": 1,
+          "max": 1,
+          "avg": 1
+        },
+        "tiles": {
+          "columns": 2,
+          "rows": 2,
+          "dispatches": 4,
+          "maxTilePixels": 230400
+        },
+        "errors": []
+      }
+    ],
+    "errors": []
+  },
+  "dayReferenceRun": {
+    "outcome": "partial success; later script precondition failed",
+    "exitCode": 1,
+    "passedStages": [
+      "actual NVIDIA application adapter",
+      "freeze and real W input cancellation",
+      "64 minimum-SPP large FP32 denoising",
+      "finite 64-SPP raw and filtered linear HDR readbacks",
+      "finite 256-SPP raw reference",
+      "linear HDR full-frame and central-rectangle MSE comparison"
+    ],
+    "laterFailure": "Script requested refinement during an asynchronous LOD/quality rebuild; Select quality rendering first. This run as a whole did not pass.",
+    "freezeAndRealInputCancelled": {
+      "stage": "freeze-and-real-input-cancelled",
+      "elapsedMs": 66968
+    },
+    "refinement64": {
+      "elapsedMs": 109247,
+      "scene": "baishinji",
+      "resolution": [
+        1280,
+        720
+      ],
+      "maxBounces": 15,
+      "samplingMode": "complete-frame",
+      "tiles": {
+        "columns": 2,
+        "rows": 2,
+        "dispatches": 4,
+        "maxTilePixels": 230400
+      },
+      "frameBudget": 250000,
+      "samples": {
+        "min": 64,
+        "max": 64,
+        "avg": 64
+      },
+      "refinement": {
+        "state": "complete",
+        "targetSamples": 64,
+        "samples": {
+          "min": 64,
+          "max": 64,
+          "avg": 64
+        },
+        "revision": 9,
+        "denoised": true
+      },
+      "sourceMeshes": 1474,
+      "sourceInstances": 60896,
+      "expandedTriangles": 4658630,
+      "compactVertices": 7893563,
+      "texturePages": 5
+    },
+    "readback64": {
+      "elapsedMs": 109702,
+      "raw64": {
+        "width": 1280,
+        "height": 720,
+        "nonfinite": 0,
+        "max": 0.7587718963623047,
+        "mean": 0.062292061748676,
+        "quadrants": [
+          4928.334185616914,
+          4148.70808048692,
+          90272.45210100255,
+          72875.59795563649
+        ]
+      },
+      "filtered64": {
+        "width": 1280,
+        "height": 720,
+        "nonfinite": 0,
+        "max": 0.74853515625,
+        "mean": 0.06226569196448507,
+        "quadrants": [
+          4924.591095033714,
+          4161.68191374912,
+          90295.86061676872,
+          72770.05151785782
+        ]
+      }
+    },
+    "rawReference256": {
+      "elapsedMs": 147055,
+      "scene": "baishinji",
+      "resolution": [
+        1280,
+        720
+      ],
+      "maxBounces": 15,
+      "samplingMode": "complete-frame",
+      "tiles": {
+        "columns": 2,
+        "rows": 2,
+        "dispatches": 4,
+        "maxTilePixels": 230400
+      },
+      "frameBudget": 250000,
+      "samples": {
+        "min": 256,
+        "max": 256,
+        "avg": 256
+      },
+      "refinement": {
+        "state": "denoising",
+        "targetSamples": 256,
+        "samples": {
+          "min": 256,
+          "max": 256,
+          "avg": 256
+        },
+        "revision": 10,
+        "denoised": false
+      },
+      "sourceMeshes": 1474,
+      "sourceInstances": 60896,
+      "expandedTriangles": 4658630,
+      "compactVertices": 7893563,
+      "texturePages": 5
+    },
+    "rawReferenceReadback": {
+      "width": 1280,
+      "height": 720,
+      "nonfinite": 0,
+      "max": 0.6358513832092285,
+      "mean": 0.06245886281429368,
+      "quadrants": [
+        4831.725069111479,
+        4193.036417494437,
+        90455.6640607261,
+        73205.83836162522
+      ]
+    },
+    "referenceComparison": {
+      "domain": "linear HDR texture readback, not the displayed UI screenshot",
+      "rows": [
+        "full frame",
+        "central 50% of width and height"
+      ],
+      "measurements": [
+        {
+          "rawMSE": 4.755235202742175e-05,
+          "filteredMSE": 3.7430289829410525e-05,
+          "rawEdge": 0.007636386126450453,
+          "filteredEdge": 0.005322611513722626,
+          "referenceEdge": 0.005905496624171598
+        },
+        {
+          "rawMSE": 9.537396840584309e-05,
+          "filteredMSE": 7.003079838740787e-05,
+          "rawEdge": 0.01396434011794507,
+          "filteredEdge": 0.010037169396357305,
+          "referenceEdge": 0.011028019250814534
+        }
+      ],
+      "roiBounds": {
+        "xStartInclusive": 320,
+        "xEndExclusive": 960,
+        "yStartInclusive": 180,
+        "yEndExclusive": 540
+      },
+      "mseDefinition": "Mean squared RGB error versus the 256-SPP raw linear HDR reference.",
+      "edgeEnergyDefinition": "Mean horizontal absolute RGB difference between pixel(x) and pixel(x-1); this is not a window-frame-specific edge ROI."
+    },
+    "visualLimit": "The final filtered texture was not explicitly presented again before the original screenshots; these images are not evidence of final denoised edge quality."
+  },
+  "capacity": {
+    "singlePackedVertexBinding": {
+      "passed": true,
+      "materials": 417,
+      "attributes": [
+        "position",
+        "normal",
+        "tangent",
+        "color",
+        "uv"
+      ],
+      "strideBytes": 80,
+      "packedAttributeBytes": 631485040,
+      "storage": {
+        "materials": 460368,
+        "transforms": 11515200,
+        "nodes": 39891680,
+        "index": 41391408,
+        "attributes": 631485040
+      }
+    },
+    "allBvhPackStorageBytes": 724743696,
+    "preflightRendererSnapshot": {
+      "storageResources": 11,
+      "allStorageResourcesBytes": 1516217504,
+      "allRendererResourcesEstimatedBytes": 1772123182,
+      "observedAtStage": "render-0"
+    },
+    "after64DenoisingRendererSnapshot": {
+      "storageResources": 16,
+      "allStorageResourcesBytes": 2274326064,
+      "allRendererResourcesEstimatedBytes": 2923757876
+    },
+    "deviceLimits": {
+      "maxBufferSize": 2147483648,
+      "maxStorageBufferBindingSize": 2147483644,
+      "maxTextureDimension2D": 16384
+    },
+    "meaning": "The 631485040-byte single vertex binding is separate from all BVH pack buffers and renderer resource sums. Renderer figures are snapshots of tracked resources, not total device VRAM use or measured peaks."
+  },
+  "evidenceLogsSha256": {
+    "dragon-preflight-fullcity-gtx1070.jsonl": "ebd33e0d097dde4673f88c17502dfda003c0eb7b86c84ced222928ac83ca89bb",
+    "dragon-day-reference-gtx1070.jsonl": "a65782c518f5b9e8541ebf79d9d654ab3cd260cd2caf877f1635dc34080acdf3"
+  },
+  "postCandidateChanges": "The accepted source adds CPU-tested scene-wide UV-union estimation and an actual packedAttributeBytes inspection field; these do not alter GPU sampling/rendering. Documentation and CI evidence are updated separately.",
+  "excludedRuns": [
+    "Continuation launched with TEST_GPU instead of HARBOR_GPU_MODE selected software mode; it is excluded from hardware acceptance."
+  ],
+  "testedApplicationPatchArchiveSha256": "6590486e2b9c087d78f7eb13aa0bd7cf6ec3d7c8e8adae7af549c853096f4131",
+  "continuationFailure": {
+    "outcome": "failed",
+    "stage": "shrine to summit after five successful place visits",
+    "error": "RangeError: ArrayBuffer allocation failed during upstream BVH pack replacement",
+    "deviceLossReported": false,
+    "coldSummitControl": {
+      "passed": true,
+      "singlePackedAttributeBytes": 605310000,
+      "allBvhPackStorageBytes": 694603648,
+      "materials": 400
+    },
+    "rootCauseEvidence": [
+      "Pinned upstream setScene packs a new scene before retiring the previous BVH pack.",
+      "Pinned storage attribute dispose dispatches an event; compute-only storage was not removed from the renderer attribute registry by that call.",
+      "Retired private scenes and unloaded source LOD objects retained CPU geometry references."
+    ],
+    "correctionStatus": "Explicit owned-buffer retirement, private/source reference cleanup and real GPU lifecycle regression in progress. Scene fidelity is preserved."
+  }
+}

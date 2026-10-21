@@ -10,11 +10,19 @@ export function browserLaunchOptions(env = process.env, platform = process.platf
   const power = env.HARBOR_GPU_POWER || 'default';
   if (!['default', 'high-performance'].includes(power)) throw new Error('HARBOR_GPU_POWER must be default or high-performance');
   if (power === 'high-performance' && (platform !== 'win32' || mode !== 'hardware')) throw new Error('HARBOR_GPU_POWER=high-performance requires Windows hardware mode');
+  // Remote process launchers may preserve mixed-case Windows environment names,
+  // or omit them entirely. Common system locations remain existence-checked.
+  const windowsEnv = name => env[name] ?? Object.entries(env).find(([key]) => key.toUpperCase() === name)?.[1];
+  const programs = windowsEnv('PROGRAMFILES'), programsX86 = windowsEnv('PROGRAMFILES(X86)'), local = windowsEnv('LOCALAPPDATA');
   const candidates = platform === 'win32' ? [
-    env.PROGRAMFILES && join(env.PROGRAMFILES, 'Microsoft/Edge/Application/msedge.exe'),
-    env['PROGRAMFILES(X86)'] && join(env['PROGRAMFILES(X86)'], 'Microsoft/Edge/Application/msedge.exe'),
-    env.PROGRAMFILES && join(env.PROGRAMFILES, 'Google/Chrome/Application/chrome.exe'),
-    env.LOCALAPPDATA && join(env.LOCALAPPDATA, 'Google/Chrome/Application/chrome.exe'),
+    programs && join(programs, 'Microsoft/Edge/Application/msedge.exe'),
+    programsX86 && join(programsX86, 'Microsoft/Edge/Application/msedge.exe'),
+    programs && join(programs, 'Google/Chrome/Application/chrome.exe'),
+    local && join(local, 'Google/Chrome/Application/chrome.exe'),
+    'C:/Program Files/Microsoft/Edge/Application/msedge.exe',
+    'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+    'C:/Program Files/Google/Chrome/Application/chrome.exe',
+    'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
   ] : platform === 'darwin' ? [
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',

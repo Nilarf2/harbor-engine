@@ -1,6 +1,8 @@
-# Working in Harbor
+# Working in Harbor · Harbor 协作指南
 
-Harbor is an experimental browser 3D engine with a CPU-only simulation core, optional Rapier physics, a quality WebGPU path tracer integrated from three-gpu-pathtracer, a compact reference compute tracer, and a Three.js raster view. Read `README.md`, `docs/ARCHITECTURE.md`, and `docs/AI_GUIDE.md` before substantial changes. Keep project documentation and public identifiers in English.
+Harbor is an experimental browser 3D engine with a CPU-only simulation core, a native-scene application host, optional Rapier physics, a quality WebGPU path tracer integrated from three-gpu-pathtracer, a compact reference compute tracer, and a Three.js raster view. Read `README.md`, `docs/ARCHITECTURE.md`, `docs/APPLICATION.md`, and `docs/AI_GUIDE.md` before substantial changes. Public-facing titles, introductions and new documentation should provide Chinese and English. Keep package names, source identifiers, URLs and schema fields stable in English.
+
+本项目的公共标题、介绍和新增文档提供中英双语；包名、源码标识符、URL 与 schema 字段保持稳定英文。应用负责剧情、UI、输入、平台和具体碰撞规则，引擎只承载可复用能力。修改前阅读对应公开合同，不将旧版本 GPU 验证当成新功能验收。
 
 ## Build games through the engine
 
@@ -9,6 +11,8 @@ Harbor is an experimental browser 3D engine with a CPU-only simulation core, opt
 - Use stable authored entity IDs and `entity.data` for game-specific JSON. Call `validateScene()` before loading generated content. Unknown scene fields are errors; consult `docs/scene.schema.json` and `src/core/types.ts` instead of guessing.
 - Use `world.spawn()` and `world.remove()` so plugin/view observers receive lifecycle events. Use physics commands for physics-owned transforms. Static batched visuals must remain static; replace them through lifecycle methods when necessary.
 - Install asynchronous dependencies before synchronous plugin `setup()`. Register owned systems, events, commands, and resources with `scope.add()`. Dispose independent renderers, actors, and asset handles explicitly.
+- Use `createApplication()` for application-owned native scenes/cameras/postprocessing. Its `step(seconds)` updates once with exact seconds; `createGame().step(count)` still advances fixed ticks. Scene factories return fresh instances. Prepare resources in `load`, restore state before synchronous `enter`, and await view/GPU disposal before releasing its assets. Context `signal` equals `scope.signal`; cancellation aborts the signal immediately, but deferred cleanup waits for scene disposal.
+- Preserve existing save keys and schema through `SaveStore<T>` when migrating applications. Do not silently wrap raw legacy saves in the namespaced platform envelope. `SpatialIndex` is a broad phase only; keep application-specific collision and walkable-height rules explicit.
 
 ## Verify the behavior you change
 
@@ -29,7 +33,7 @@ npm run build
 
 - `createGame({ mode: 'pathtrace' })` uses the quality native WebGPU backend. `trace.backend: 'compact'` selects the smaller constant-material reference tracer; raster is a separate view with WebGL2 fallback. Both tracing backends intersect geometry and do not claim a standard hardware RT-core API.
 - Prefer the quality adapter's full Three scene for imported meshes, textures, HDR lighting and physical materials/cameras. Read `src/pathtracing/index.ts` and the GLB ownership recipe in `docs/AI_GUIDE.md`; application-owned scene resources must outlive the renderer. Native transforms, material changes and deformation need the appropriate update calls.
-- Do not copy the compact backend's texture/skinning limitations onto the quality backend, or claim every upstream feature has been validated here. OIDN/FSR exports are integration points, not an installed/tested denoising mode. Continuous skinned/morph tracing and target-device frame rates need their own evidence.
+- Do not copy the compact backend's texture/skinning limitations onto the quality backend, or claim every upstream feature has been validated here. Packaged OIDN dependencies/weights do not establish device acceptance; record actual refinement/denoising checks separately. Continuous skinned/morph tracing and target-device frame rates need their own evidence.
 - `fromWorld()`/`fromThreeScene()` in `@harbor/engine/raytrace` are compact snapshots; `updateGeometry()` refits unchanged topology and resets accumulation after changed geometry. Prefer `createGame()` and the independent generator before rebuilding application orchestration.
 - Keep external assets local when required by a build, document their origins, and preserve notices. The included mannequin and adapted asset utilities retain their upstream MIT attribution. Do not copy the reference game's novel, map, or elevation content into a new game by default.
 - Keep secrets and private machine configuration out of scenes, diagnostics, bundles, documentation, and git history. Refer to the repository's actual supported platform adapter API; do not claim host integration based solely on a ZIP export.
