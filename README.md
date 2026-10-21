@@ -2,9 +2,9 @@
 
 A modular TypeScript engine for AI-assisted browser games. Develop and test simulation on a computer without a GPU; render on the player's GPU. Keep the engine and replace the scene, assets, and gameplay plugins for the next game.
 
-**Status: 0.1 experimental alpha.** The default path-tracing mode uses the native WebGPU backend of [three-gpu-pathtracer](https://github.com/gkjohnson/three-gpu-pathtracer). It traces scene geometry and multi-bounce light transport, including textures, physical materials, and HDR lighting. A smaller custom compute tracer remains available as a reference backend. Neither claims a standard hardware RT-core API. Real desktop/mobile performance and Tidewater-level visual quality have not been established. See [validation](docs/VALIDATION.md).
+**Status: 0.1 experimental alpha.** The default path-tracing mode uses the native WebGPU backend of [three-gpu-pathtracer](https://github.com/gkjohnson/three-gpu-pathtracer). It traces scene geometry and multi-bounce light transport, including textures, physical materials, and HDR lighting. A smaller custom compute tracer remains available as a reference backend. Neither claims a standard hardware RT-core API.
 
-Recorded checks include 58 Node tests, 49 browser lifecycle assertions, the extracted production demo, and an independently generated game running quality path tracing and WebGL2. Graphics checks used a software adapter; they establish functionality within the tested scope.
+The latest [validation record](docs/VALIDATION.md) includes 61 passing Node tests, a production build, native GTX 1070 graphics acceptance, and measured quality-tracing budgets, alongside earlier software-adapter and independent-game checks. Short runs on one desktop GPU do not establish mobile or general game performance, sustained behavior, or Tidewater-level visual parity.
 
 ## Start a new game
 
@@ -98,6 +98,8 @@ CHROMIUM_PATH=/usr/bin/chromium npm run test:browser
 CHROMIUM_PATH=/usr/bin/chromium npm run test:render
 node tests/pathtracing.mjs
 ```
+
+For Windows/desktop hardware checks and measured quality-tracing budgets, follow [hardware validation](docs/HARDWARE_VALIDATION.md). Set `HARBOR_GPU_MODE=hardware` to stop forcing a software adapter. `npm run bench:gpu` records serial dispatch timing and measured samples; it requires hardware by default.
 
 The checked-in CI runs Node tests and a build, then uploads build artifacts. It does not assume that a hosted runner can execute WebGPU. Local software rendering validates only the tested paths, not real player-device frame rates. Commands and recorded evidence are in [VALIDATION.md](docs/VALIDATION.md).
 

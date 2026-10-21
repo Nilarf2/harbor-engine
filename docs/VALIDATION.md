@@ -1,20 +1,49 @@
 # Validation record
 
-Date: 2026-10-18. Status: experimental alpha. CPU, software-graphics, extracted-demo, and independent-game functional acceptance passed for this release. These checks establish only their stated scope; player-device performance remains unmeasured.
+Last updated: 2026-10-21. Status: experimental alpha. The latest checks include CPU/build acceptance, the complete native graphics suite on a GTX 1070, and four short quality-tracing measurements. Earlier software-graphics, extracted-demo, and independent-game results from 2026-10-18 are retained below. Each record establishes its stated scope; a short run on one desktop GPU does not establish mobile or general game performance.
 
 ## CPU and build checks
 
 | Check | Recorded result | Scope |
 | --- | --- | --- |
-| `npm test` | 58 tests passed in the integrated source snapshot | Core validation/fixed ticks/plugins, real Rapier behavior, asset ownership, compact geometry/BVH conversion, quality world bridge, portable generator and offline asset tools |
-| `npm run build` | Passed in the same integration snapshot | TypeScript checks, package JavaScript/declarations, Vite production build |
-| Offline asset tools | 6 focused tests passed | Exact decoded geometry/index/morph data, skin/animation preservation, metadata/image preservation, Three Meshopt loader compatibility, no overwrite/concurrent publish, external-resource rejection, CLI error status |
+| `npm test` | 61 tests passed on 2026-10-21 as part of `npm run check`; 58 passed in the 2026-10-18 integration snapshot | Core validation/fixed ticks/plugins, real Rapier behavior, asset ownership, compact geometry/BVH conversion, quality world bridge, portable generator, offline asset tools, and hardware-test adapter validation |
+| `npm run build` | Passed on 2026-10-21 as part of `npm run check`; also passed in the 2026-10-18 snapshot | TypeScript checks, package JavaScript/declarations, Vite production build |
+| Offline asset tools | 6 focused tests passed in the 2026-10-18 record | Exact decoded geometry/index/morph data, skin/animation preservation, metadata/image preservation, Three Meshopt loader compatibility, no overwrite/concurrent publish, external-resource rejection, CLI error status |
+
+The latest complete CPU/build log is `tests/artifacts/final-check.log`. Test artifacts are local diagnostics and are not bundled into the published engine package.
 
 The GLB test model's lossless candidate changed raw size from 38,088 to 17,188 bytes, while gzip changed from 3,082 to 3,804 bytes and Brotli from 2,425 to 3,051 bytes. The tool reports this regression explicitly; the bundled original was not replaced. These are one asset's results, not an expected compression ratio for other content.
 
-## Graphics evidence
+## 2026-10-21 GTX 1070 hardware checks
 
-The available development environment has no dedicated GPU. Graphics checks use Chromium with a software Vulkan/SwiftShader adapter; they validate functionality, not hardware throughput.
+Configuration: Windows 11 x64, Core i7-8700, 8 GiB system RAM, GTX 1070 with 8 GiB VRAM, NVIDIA driver 31.0.15.5222 (552.22), Node 24.22.0, and headless Microsoft Edge 155.0.4283.62. Tests ran sequentially. The [machine-readable record](validation/gtx1070-2026-10-21.json) contains settings, observed adapters, readbacks, lifecycle results, benchmark data, the base commit, and SHA-256 values for the changed source/test files. The synchronized Windows files matched those hashes before execution. The final benchmark runner was separately synchronized and verified after extending its measurement window.
+
+The application's WebGPU adapters reported `nvidia` / `pascal`, `isFallbackAdapter: false`, with model fields redacted. The benchmark browser's own GPU diagnostics and the production application's WebGL renderer named GTX 1070; the inventory had one NVIDIA card. This combination supports attribution to that card. Without `HARBOR_GPU_POWER=high-performance`, the same machine selected Intel UHD 630 despite a WebGPU power preference hint. The accepted Windows runs used `--force_high_performance_gpu` on isolated test processes. No software-adapter forcing flags were used.
+
+| Check | Recorded result | Scope |
+| --- | --- | --- |
+| `npm run test:quality` | Passed: 32 × 24, 180 triangles, 4 bounces, minimum 4 spp; mean linear RGB 0.4964245800, maximum 1.8712048531, zero non-finite values and collected errors | Native adapter/facade, textures, normal map, HDR, glass, physical camera, resize/world updates, BVH caching, and cleanup with pending reads |
+| Embedded textured GLB within the quality suite | Passed: 2,724 bytes, 12 triangles, 16 × 16, 2 bounces, minimum 2 spp; mean linear RGB 0.1424091013, zero non-finite values and collected errors | Meshopt decoding, sRGB texture, transform updates, borrowed-resource ownership and exact final release |
+| `npm run test:render` | Passed on WebGL2 and WebGPU | Stable resource counts through 40 total spawn/remove cycles, ordinary mesh retention after physics teleport, static-batch matrices/culling bounds, real subscription cleanup, DPR 2 and hidden-canvas recovery |
+| `npm run test:browser` after a native Windows Vite build | All 6 checks passed, zero collected errors; five non-black canvases with 900 × 600 CSS presentation | Compact tracing at 1/8 bounces and refit; quality facade with measured 2 spp; WebGL2/WebGPU gameplay with movement, jump, collection, quality switching and cleanup, served under `/nested/` |
+| `npm run bench:gpu` | All four cases passed; finite/non-black readback, sample progress, camera reset and recovery, zero collected errors | Static quality scene with 3 meshes, 1,932 triangles and one atlas page; about 10 seconds per measured case |
+
+The retained optimizations avoid replacing ordinary raster meshes after transform-only physics commands and preserve unchanged quality geometry BVHs during scene additions/removals or material changes. Both adapter and facade regressions verify cache identity. Explicit vertex changes followed by `invalidateScene()` still replace the BVH: moving the emissive test box outside view changed center red radiance from 3 to 0, with zero non-finite values. These checks demonstrate avoided rebuilds and preserved correctness; no before/after frame-rate claim is made.
+
+| Internal pixels | Bounces | Path budget per call | Calls | Mean / p95 submission-to-completion (ms) | Average spp per second |
+| --- | --- | --- | --- | --- | --- |
+| 320 × 180 | 4 | 8,192 | 2,361 | 4.23 / 5.90 | 20.24 |
+| 320 × 180 | 4 | 32,768 | 2,356 | 4.24 / 5.90 | 87.30 |
+| 320 × 180 | 4 | 57,600 | 2,372 | 4.21 / 5.80 | 166.19 |
+| 640 × 360 | 8 | 131,072 | 1,741 | 5.74 / 6.90 | 64.19 |
+
+Each measurement reset accumulation after warmup. Timing serializes JavaScript submission and GPU queue completion for every call; it excludes initialization and readbacks. A call advances a wavefront budget, so these are neither GPU timestamp timings nor game FPS. Sample rates use explicit average sample counts divided by the measured window. For this small stationary 320 × 180 scene on this card, 57,600 is a better starting budget than 8,192: it completed more samples within similar per-call latency. Recheck the budget for other content, resolutions, moving scenes and presentation loops. Engine-wide defaults were not inferred from this one scene.
+
+Power settings, background load, thermals and power draw were not controlled or recorded. Sustained memory/thermal behavior, mobile support, full-game frame rates, denoising and animated deformation need separate evidence. The independent generated-game browser checks below remain historical software results. Use [the hardware procedure](HARDWARE_VALIDATION.md) to reproduce adapter validation and the benchmark matrix. The production browser recorded upstream warnings about the ignored Windows power preference hint and the `THREE.Source` rename; its error collection was empty.
+
+## 2026-10-18 software graphics and portable-game evidence
+
+The development environment used for this historical record had no dedicated GPU. These graphics checks used Chromium with a software Vulkan/SwiftShader adapter; they established functionality within the stated cases, without measuring hardware throughput. All figures and package sizes in this section belong to the 2026-10-18 snapshot.
 
 | Check | Recorded result | Limit |
 | --- | --- | --- |
@@ -62,4 +91,4 @@ The GitHub workflow repeats locked installation, Node tests, build, and model in
 
 The release record identifies the accepted source commit and includes downloadable artifacts with an external SHA-256 checksum file. Final engine packaging may update documentation after the independent-game run; compiled modules are compared byte for byte with that accepted package. No generated dependencies, local diagnostics, or private workstation configuration belong in the source release.
 
-Real laptop/desktop/mobile GPU frame rates, sustained memory/power use, large-scene budgets, temporal denoising, continuous skinning/morph tracing, target-host acceptance, and Tidewater visual parity remain unmeasured. Future hardware records should include browser/version, adapter, resolution, geometry/material/texture counts, bounce/frame budgets, measured samples, elapsed time, error/device-loss behavior, and motion/noise conditions.
+The GTX 1070 results above cover only their recorded checks. General laptop/desktop/mobile game frame rates, sustained memory/power use, large-scene budgets, temporal denoising, continuous skinning/morph tracing, target-host acceptance, and Tidewater visual parity require separate evidence. Hardware records should include browser/version, adapter, resolution, geometry/material/texture counts, bounce/frame budgets, measured samples, elapsed time, error/device-loss behavior, and motion/noise conditions.

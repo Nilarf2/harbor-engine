@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
 import { chromium } from 'playwright-core';
+import { browserLaunchOptions, observeGraphics, graphicsEvidence } from './browser-gpu.mjs';
 
 // A fresh, isolated browser visits only a temporary page on this loopback server.
 // Software rendering checks ownership and correctness, not player GPU performance.
@@ -16,12 +17,9 @@ const errors = [], blockedRequests = [];
 try {
   await server.listen();
   const port = server.httpServer.address().port;
-  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', headless: true, args: [
-    '--no-sandbox', '--disable-dev-shm-usage', '--disable-background-networking', '--no-proxy-server',
-    '--enable-unsafe-webgpu', '--enable-unsafe-swiftshader', '--enable-features=Vulkan',
-    '--use-vulkan=swiftshader', '--use-angle=swiftshader',
-  ] });
+  browser = await chromium.launch(browserLaunchOptions());
   const page = await browser.newPage({ viewport: { width: 320, height: 240 }, deviceScaleFactor: 2 });
+  await observeGraphics(page);
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
   await page.route('**/*', route => {
@@ -37,6 +35,7 @@ try {
     const { createWorld } = await import('/src/core/index.ts');
     const { createBrowserRenderer } = await import('/src/render/index.ts');
     const { createGame } = await import('/src/browser/index.ts');
+    const { createRapierPlugin } = await import('/src/physics/index.ts');
     const canvas = () => {
       const value = document.createElement('canvas');
       value.width = 160; value.height = 120; value.style.width = '160px'; value.style.height = '120px';
@@ -49,19 +48,42 @@ try {
     const cycles = [];
     let RendererConstructor;
     for (const backend of ['webgl', 'auto']) {
-      const world = createWorld(scene), view = await createBrowserRenderer({ canvas: canvas(), world, backend, quality: 'low' });
+      const world = createWorld({ ...scene, entities: scene.entities.map(entity => ({ ...entity,
+        body: { type: 'fixed', shape: 'box', size: [1, 1, 1] },
+      })) });
+      world.install(await createRapierPlugin());
+      const listenerCount = () => [...world.events.listeners.values()].reduce((count, listeners) => count + listeners.size, 0);
+      const physicsListeners = listenerCount();
+      const view = await createBrowserRenderer({ canvas: canvas(), world, backend, quality: 'low' });
       RendererConstructor = view.renderer.constructor;
       view.camera.position.set(5, 4, 9); view.camera.lookAt(0, 0, 0); view.render();
       const sample = () => ({ ...view.inspect(), renderObjects: view.renderer._objects._renderObjects.size });
       const baseline = sample(), samples = [];
+      const ordinary = view.getObject('ordinary'), batch = view.getObject('batch');
+      let batchDisposals = 0;
+      batch.addEventListener('dispose', () => batchDisposals++);
+      world.command({ type: 'physics:teleport', id: 'ordinary', position: [1, 1, 0] });
+      view.render();
+      const ordinaryTeleport = { ordinaryPreserved: view.getObject('ordinary') === ordinary,
+        batchPreserved: view.getObject('batch') === batch, position: ordinary.position.toArray(),
+        batchDisposals, stats: sample() };
+      // Cross a static batch cell boundary. Its uploaded transform and culling bounds
+      // must follow the physics command even though ordinary transforms need no rebuild.
+      world.command({ type: 'physics:teleport', id: 'batch', position: [-1, .5, 0] });
+      view.render();
+      const movedBatch = view.getObject('batch');
+      const batchTeleport = { batchRebuilt: movedBatch !== batch, batchDisposals,
+        position: Array.from(movedBatch.instanceMatrix.array.slice(12, 15)),
+        bounds: [movedBatch.boundingBox.min.toArray(), movedBatch.boundingBox.max.toArray()],
+        entityId: view.getEntityId(movedBatch, 0), stats: sample() };
       for (let i = 0; i < 20; i++) {
         world.spawn({ id: `temporary-${i}`, position: [-2, 0, 0], visual: { shape: 'box', size: [1, 1, 1], color: '#c0b090', batch: i % 2 === 0 } });
         view.render();
         world.remove(`temporary-${i}`); view.render(); samples.push(sample());
       }
       view.dispose(); view.dispose();
-      const listenersAfter = world.events.listeners.size;
-      world.dispose(); cycles.push({ backend, baseline, samples, listenersAfter });
+      const listenersAfter = listenerCount() - physicsListeners;
+      world.dispose(); cycles.push({ backend, baseline, samples, listenersAfter, ordinaryTeleport, batchTeleport });
     }
     const originalInit = RendererConstructor.prototype.init, originalDispose = RendererConstructor.prototype.dispose;
     let initialized = 0, disposed = 0;
@@ -125,6 +147,20 @@ try {
   });
   for (const cycle of result.cycles) {
     assert.equal(cycle.listenersAfter, 0);
+    assert.equal(cycle.ordinaryTeleport.ordinaryPreserved, true, `${cycle.backend}: ordinary teleport rebuilt its mesh`);
+    assert.equal(cycle.ordinaryTeleport.batchPreserved, true, `${cycle.backend}: ordinary teleport rebuilt static batches`);
+    assert.deepEqual(cycle.ordinaryTeleport.position, [1, 1, 0]);
+    assert.equal(cycle.ordinaryTeleport.batchDisposals, 0);
+    assert.equal(cycle.batchTeleport.batchRebuilt, true);
+    assert.equal(cycle.batchTeleport.batchDisposals, 1);
+    assert.deepEqual(cycle.batchTeleport.position, [-1, .5, 0]);
+    assert.deepEqual(cycle.batchTeleport.bounds, [[-1.5, 0, -.5], [-.5, 1, .5]]);
+    assert.equal(cycle.batchTeleport.entityId, 'batch');
+    for (const state of [cycle.ordinaryTeleport, cycle.batchTeleport]) {
+      for (const key of ['geometries', 'textures', 'cachedGeometries', 'cachedMaterials', 'objects', 'batches', 'renderObjects']) {
+        assert.equal(state.stats[key], cycle.baseline[key], `${cycle.backend}: ${key} changed after teleport`);
+      }
+    }
     for (const sample of cycle.samples) {
       for (const key of ['geometries', 'textures', 'cachedGeometries', 'cachedMaterials', 'objects', 'batches', 'renderObjects']) {
         assert.equal(sample[key], cycle.baseline[key], `${cycle.backend}: ${key} grew across spawn/remove`);
@@ -147,10 +183,10 @@ try {
   assert.deepEqual(result.hiddenResponsive.styles, ['', '']);
   assert.deepEqual(result.hiddenResponsive.visible, [320, 240, 320, 240]);
   assert.deepEqual(errors, []); assert.deepEqual(blockedRequests, []);
-  await writeFile(resolve(artifacts, 'render-lifecycle-result.json'), JSON.stringify({ ok: true, browser: browser.version(), softwareAdapter: true, checks: 49, ...result }, null, 2));
-  console.log(JSON.stringify({ ok: true, checks: 49, cycles: result.cycles.map(c => ({ backend: c.backend, baseline: c.baseline, final: c.samples.at(-1) })), upfront: result.upfront, rollback: result.rollback, facadeCycles: result.facadeCycles, validationCleanup: result.validationCleanup, hiddenResponsive: result.hiddenResponsive }));
+  await writeFile(resolve(artifacts, 'render-lifecycle-result.json'), JSON.stringify({ ok: true, browser: browser.version(), gpuMode: process.env.HARBOR_GPU_MODE || 'software', graphics: await graphicsEvidence(page), checks: 95, ...result }, null, 2));
+  console.log(JSON.stringify({ ok: true, checks: 95, cycles: result.cycles.map(c => ({ backend: c.backend, baseline: c.baseline, final: c.samples.at(-1) })), upfront: result.upfront, rollback: result.rollback, facadeCycles: result.facadeCycles, validationCleanup: result.validationCleanup, hiddenResponsive: result.hiddenResponsive }));
 } catch (error) {
-  await writeFile(resolve(artifacts, 'render-lifecycle-result.json'), JSON.stringify({ ok: false, failure: String(error), errors, blockedRequests }, null, 2));
+  await writeFile(resolve(artifacts, 'render-lifecycle-result.json'), JSON.stringify({ ok: false, failure: String(error), browser: browser?.version(), gpuMode: process.env.HARBOR_GPU_MODE || 'software', graphics: error.evidence, errors, blockedRequests }, null, 2));
   throw error;
 } finally {
   try { await browser?.close(); } finally { await server.close(); }

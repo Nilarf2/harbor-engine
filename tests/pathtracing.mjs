@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright-core';
+import { browserLaunchOptions, observeGraphics, graphicsEvidence } from './browser-gpu.mjs';
 import { createServer } from 'vite';
 import { createTexturedCubeGLB } from './fixtures/textured-cube.mjs';
 
@@ -9,13 +10,12 @@ const server = await createServer({ configFile: false, appType: 'custom', root: 
 server.middlewares.use('/__textured-cube.glb', (_req, res) => { res.setHeader('Content-Type', 'model/gltf-binary'); res.end(Buffer.from(glbFixture)); });
 server.middlewares.use('/__quality-test', (_req, res) => { res.setHeader('Content-Type', 'text/html'); res.end('<!doctype html><html><head><link rel="icon" href="data:,"></head><body></body></html>'); });
 await server.listen();
-const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', headless: true,
-  args: ['--no-sandbox', '--disable-dev-shm-usage', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--enable-unsafe-webgpu', '--use-vulkan=swiftshader', '--enable-features=Vulkan', '--proxy-server=direct://', '--proxy-bypass-list=*', '--disable-background-networking'],
-  env: Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^https?_proxy$|^all_proxy$/i.test(key))),
-});
+let browser;
 const errors = [];
 try {
+  browser = await chromium.launch(browserLaunchOptions());
   const page = await browser.newPage();
+  await observeGraphics(page);
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => { if(message.text().startsWith('[quality-test]')) console.log(message.text()); if (message.type() === 'error') { console.log('[quality-error]', message.text().slice(0, 1000)); errors.push(message.text().slice(0, 2000)); } });
   await page.route('**/*', route => { const url = new URL(route.request().url()); return url.hostname === '127.0.0.1' || ['blob:', 'data:'].includes(url.protocol) ? route.continue() : route.abort(); });
@@ -57,15 +57,23 @@ try {
     const world = createWorld({ version:1, name:'Quality bridge', entities:[{id:'ball',position:[0,0,0],visual:{shape:'sphere',size:[2,2,2],color:'#f15c31'}}] });
     const secondCanvas = document.createElement('canvas'); document.body.append(secondCanvas);
     const second = await createPathTracingRenderer({ canvas:secondCanvas, world, width:16, height:12, maxBounces:2, frameBudget:512, maxSamples:2, segments:8 });
+    const ballGeometry = second.worldBridge.getObject('ball').geometry, ballBVH = ballGeometry.boundsTree;
     console.log('[quality-test] world bridge ready'); for(let i=0;i<30;i++){second.render();if((await deadline(second.measureSamples(), 'world samples')).min>=2)break;}
     console.log('[quality-test] world bridge converged'); const unchanged = second.syncWorld(), stableSamples = second.inspect().samples;
     world.get('ball').position[0] = 0.5;
     const moved = second.syncWorld(), movedSamples = second.inspect().samples;
     world.spawn({id:'box',position:[0,-2,0],visual:{shape:'box',size:[5,1,5],color:'#ffffff'}});
     const rebuilt = second.syncWorld(); second.render(); await deadline(second.measureSamples(), 'world samples'); const spawned = second.inspect();
+    const spawnPreservedBVH = ballGeometry.boundsTree === ballBVH;
+    world.get('ball').visual.roughness = .2; second.syncWorld();
+    const materialPreservedBVH = second.worldBridge.getObject('ball').geometry === ballGeometry && ballGeometry.boundsTree === ballBVH;
+    second.render(); await deadline(second.measureSamples(), 'world samples');
+    const boxGeometry = second.worldBridge.getObject('box').geometry, boxBVH = boxGeometry.boundsTree;
     world.remove('ball'); second.syncWorld(); second.render(); await deadline(second.measureSamples(), 'world samples'); const removed = second.inspect();
+    const removalPreservedBVH = boxGeometry.boundsTree === boxBVH;
     await second.dispose(); world.dispose();
-    return { initial, mean:sum/(32*24*3), max, invalid, cameraReset, resized, restored, unchanged, stableSamples, moved, movedSamples, rebuilt, spawned, removed };
+    return { initial, mean:sum/(32*24*3), max, invalid, cameraReset, resized, restored, unchanged, stableSamples, moved, movedSamples, rebuilt, spawned, removed,
+      spawnPreservedBVH, materialPreservedBVH, removalPreservedBVH };
   });
   assert.equal(result.initial.backend, 'webgpu'); assert.equal(result.initial.samples.min, 4);
   assert.equal(result.invalid, 0); assert.ok(result.mean > .01); assert.ok(result.max > 1, 'HDR readback retains radiance above one');
@@ -74,7 +82,66 @@ try {
   assert.equal(result.unchanged, false); assert.equal(result.stableSamples.min, 2);
   assert.equal(result.moved, true); assert.equal(result.movedSamples, null); assert.equal(result.rebuilt, true);
   assert.equal(result.spawned.meshes, 2); assert.equal(result.removed.meshes, 1); assert.deepEqual(errors, []);
+  assert.equal(result.spawnPreservedBVH, true); assert.equal(result.materialPreservedBVH, true); assert.equal(result.removalPreservedBVH, true);
   console.log(JSON.stringify({ test:'native-webgpu-quality', ...result, errors }, null, 2));
+
+  const facadeBVH = await page.evaluate(async () => {
+    const { THREE } = await import('/__quality-modules.js');
+    const { createGame } = await import('/src/browser/index.ts');
+    const deadline = (promise, label) => {
+      let timer;
+      return Promise.race([promise, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(label + ' timed out after 30s')), 30000); })]).finally(() => clearTimeout(timer));
+    };
+    const canvas = document.createElement('canvas'); canvas.width = 16; canvas.height = 12; document.body.append(canvas);
+    const nativeScene = new THREE.Scene(); nativeScene.background = new THREE.Color('#000000');
+    let game;
+    try {
+      game = await createGame({ canvas, mode:'pathtrace', autoStart:false,
+        scene:{ version:1, name:'BVH cache lifecycle', entities:[{ id:'anchor', visual:{ shape:'box', size:[2,2,2], emissive:'#ff0000', emissiveIntensity:2 } }] },
+        camera:{ position:[0,0,4], target:[0,0,0], fov:45 },
+        trace:{ scene:nativeScene, width:16, height:12, maxBounces:2, frameBudget:512, maxSamples:2, segments:8 } });
+      const view = game.pathtracing, geometry = view.worldBridge.getObject('anchor').geometry, originalBVH = geometry.boundsTree;
+      const converge = async () => {
+        for (let i = 0; i < 24; i++) { game.step(0); if ((await deadline(view.measureSamples(), 'facade samples')).min >= 2) return; }
+        throw new Error('Facade did not converge');
+      };
+      const capture = async () => {
+        const target = new THREE.RenderTarget(16,12,{type:THREE.FloatType});
+        const quad = new THREE.QuadMesh(new THREE.MeshBasicNodeMaterial({map:view.pathTracer.target,toneMapped:false}));
+        try {
+          view.renderer.setRenderTarget(target); quad.render(view.renderer); view.renderer.setRenderTarget(null);
+          const pixels = await deadline(view.renderer.readRenderTargetPixelsAsync(target,0,0,16,12), 'facade pixels');
+          let sum = 0, nonFinite = 0;
+          for (let i = 0; i < pixels.length; i++) { if (!Number.isFinite(pixels[i])) nonFinite++; if (i % 4 !== 3) sum += pixels[i]; }
+          return { mean:sum/(16*12*3), centerRed:pixels[(6*16+8)*4], nonFinite };
+        } finally { view.renderer.setRenderTarget(null); target.dispose(); quad.material.dispose(); quad.dispose(); }
+      };
+      game.world.spawn({ id:'temporary', position:[10,0,0], visual:{shape:'box',size:[1,1,1]} }); game.step(0);
+      const spawnPreservedBVH = geometry.boundsTree === originalBVH;
+      await deadline(view.measureSamples(), 'facade spawn');
+      game.world.remove('temporary'); game.step(0);
+      const removalPreservedBVH = geometry.boundsTree === originalBVH;
+      await deadline(view.measureSamples(), 'facade removal');
+      game.world.get('anchor').visual.emissiveIntensity = 3; game.step(0);
+      const anchor = view.worldBridge.getObject('anchor');
+      const materialPreservedBVH = anchor.geometry === geometry && geometry.boundsTree === originalBVH;
+      const updatedEmission = anchor.material.emissiveIntensity;
+      await converge(); const before = await capture();
+      // Move the vertices beyond the old bounds. Explicit invalidation must rebuild
+      // the cached BLAS and remove the emissive box from the rendered camera view.
+      geometry.translate(10,0,0); game.invalidateScene(); game.step(0);
+      const geometryRebuiltBVH = geometry.boundsTree !== originalBVH;
+      const boundsMinimumX = geometry.boundsTree.getBoundingBox(new THREE.Box3()).min.x;
+      await converge(); const after = await capture();
+      return { spawnPreservedBVH, removalPreservedBVH, materialPreservedBVH, updatedEmission, geometryRebuiltBVH, boundsMinimumX, before, after };
+    } finally { game?.dispose(); await game?.pathtracing?.dispose(); canvas.remove(); }
+  });
+  assert.equal(facadeBVH.spawnPreservedBVH, true); assert.equal(facadeBVH.removalPreservedBVH, true); assert.equal(facadeBVH.materialPreservedBVH, true);
+  assert.equal(facadeBVH.updatedEmission, 3); assert.equal(facadeBVH.geometryRebuiltBVH, true); assert.ok(facadeBVH.boundsMinimumX > 8.9);
+  assert.equal(facadeBVH.before.nonFinite, 0); assert.equal(facadeBVH.after.nonFinite, 0);
+  assert.ok(facadeBVH.before.centerRed > 1); assert.ok(facadeBVH.before.mean > .1); assert.ok(facadeBVH.after.mean < .001);
+  assert.deepEqual(errors, []);
+  console.log(JSON.stringify({test:'quality-facade-bvh-cache', ...facadeBVH, errors}, null, 2));
   }
 
   const imported = await page.evaluate(async () => {
@@ -146,4 +213,5 @@ try {
   assert.deepEqual(imported.releases,{geometry:1,material:1,texture:1}); assert.equal(imported.remainingAssetEntries,0); assert.deepEqual(errors,[]);
   console.log(JSON.stringify({test:'public-textured-glb-to-quality',...imported,errors},null,2));
 
-} finally { await browser.close(); await server.close(); }
+  console.log(JSON.stringify({test:'quality-graphics-adapters', gpuMode:process.env.HARBOR_GPU_MODE||'software', graphics:await graphicsEvidence(page)}, null, 2));
+} finally { try { await browser?.close(); } finally { await server.close(); } }

@@ -137,7 +137,7 @@ export async function createPathTracingRenderer(options: PathTracingOptions): Pr
     }
   }
   function invalidateScene(): void {
-    assertOpen(); bridge?.sync(); normalizeEnvironment(); scene.updateMatrixWorld(true); camera.updateMatrixWorld(true);
+    assertOpen(); bridge?.sync();
     // Upstream reuses geometry.boundsTree. Explicit invalidation also means vertex
     // or topology edits, so discard those CPU caches before its synchronous rebuild.
     scene.traverse(object => {
@@ -146,6 +146,12 @@ export async function createPathTracingRenderer(options: PathTracingOptions): Pr
         if ('isSkinnedMesh' in object && object.isSkinnedMesh) delete (object as Mesh & { boundsTree?: unknown }).boundsTree;
       }
     });
+    refreshScene();
+  }
+  function refreshScene(): void {
+    // Bridge lifecycle/material changes do not edit existing geometry. Retain its
+    // BLAS caches while upstream rebuilds the scene bindings and top-level BVH.
+    normalizeEnvironment(); scene.updateMatrixWorld(true); camera.updateMatrixWorld(true);
     pathTracer!.setScene(scene, camera); clearSamples();
   }
   function resize(w: number, h: number): void {
@@ -228,7 +234,7 @@ export async function createPathTracingRenderer(options: PathTracingOptions): Pr
       },
       syncWorld() {
         assertOpen(); const change = bridge?.sync() ?? 'none';
-        if (change === 'scene') invalidateScene();
+        if (change === 'scene') refreshScene();
         else if (change === 'transforms') { scene.updateMatrixWorld(true); pathTracer!.updateTransforms(); clearSamples(); }
         return change !== 'none';
       },

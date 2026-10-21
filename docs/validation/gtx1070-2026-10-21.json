@@ -1,0 +1,1489 @@
+{
+  "date": "2026-10-21",
+  "scope": "One Windows desktop; native hardware functional acceptance and short serialized quality benchmarks",
+  "source": {
+    "baseCommit": "a19bd2cadfc5bac6df293fe1f50a891f0fde461a",
+    "sha256": {
+      "src/pathtracing/index.ts": "9a7a033bb4a5897c1ccb27f4d3f59c29e395033100cff2378c205d19434c0075",
+      "src/browser/index.ts": "16bbbc15134d0813715a6e4eb0dc51815b3086b77c18ded44ca7289c00abff5c",
+      "src/render/index.ts": "fdbce370df15f30f0b9f90c6fb1915e5c66a255ca9684bf66693df71233d9391",
+      "tests/browser-gpu.mjs": "961f07c3a0b4d21d9c4f1c627602349aa7f2bf846dd2121c06aca1f49f89c406",
+      "tests/gpu-benchmark.mjs": "c2c38411b7c9e9b85e2f6b15d90dac9f643eef802a960f58c66b21f0c39b5e68",
+      "tests/pathtracing.mjs": "a90ee983e74886261a5da12542f754c0aacd4b21aba7a122409c7161e8bb0303",
+      "tests/browser.mjs": "f41a31a71c4c4bed396abf1e226393dc3ec1bb4a25c606c6e07b83951ee08d01",
+      "tests/render-lifecycle.mjs": "703b912442d94592f112c33d9be8c0b32d85e08f72b098dce2d0e670279bca66",
+      "package.json": "425ea7f4f54077b47bd8d9b0df89b06c393eff513fbdcfbbced7c3ac638281dd"
+    }
+  },
+  "environment": {
+    "os": "Windows 11 x64",
+    "cpu": "Intel Core i7-8700",
+    "systemMemoryGiB": 8,
+    "gpu": "NVIDIA GeForce GTX 1070",
+    "gpuMemoryGiB": 8,
+    "driver": "31.0.15.5222 (552.22)",
+    "node": "v24.22.0",
+    "browser": "Microsoft Edge 155.0.4283.62",
+    "headless": true,
+    "gpuMode": "hardware",
+    "expectedAdapterSubstring": "nvidia",
+    "gpuPower": "high-performance",
+    "gpuSelectionSwitch": "--force_high_performance_gpu",
+    "attribution": "Application WebGPU reports NVIDIA/Pascal with redacted model fields. The same benchmark browser's diagnostic renderer and the production application's WebGL renderer name GTX 1070; the GPU inventory contains one NVIDIA card.",
+    "controls": "Tests ran sequentially. Power settings, background load, thermals and power draw were not controlled or recorded."
+  },
+  "functionalCommands": {
+    "timestamp": "2026-10-21T03:35:28.489Z",
+    "node": "v24.22.0",
+    "results": [
+      {
+        "name": "build",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 2227
+      },
+      {
+        "name": "quality",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 32403
+      },
+      {
+        "name": "render",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 13843
+      },
+      {
+        "name": "browser",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 69523
+      }
+    ]
+  },
+  "quality": [
+    {
+      "test": "native-webgpu-quality",
+      "initial": {
+        "backend": "webgpu",
+        "implementation": "three-gpu-pathtracer",
+        "width": 32,
+        "height": 24,
+        "maxBounces": 4,
+        "frameBudget": 2048,
+        "maxSamples": 4,
+        "meshes": 2,
+        "triangles": 180,
+        "texturePages": 2,
+        "textureWidth": 2,
+        "textureHeight": 2,
+        "samples": {
+          "min": 4,
+          "max": 4,
+          "avg": 4,
+          "samplesPerSecond": 0.903730146173483
+        },
+        "limits": {
+          "maxBufferSize": 2147483648,
+          "maxStorageBufferBindingSize": 2147483644,
+          "maxTextureDimension2D": 16384
+        }
+      },
+      "mean": 0.49642458001694145,
+      "max": 1.8712048530578613,
+      "invalid": 0,
+      "cameraReset": true,
+      "resized": {
+        "backend": "webgpu",
+        "implementation": "three-gpu-pathtracer",
+        "width": 24,
+        "height": 16,
+        "maxBounces": 4,
+        "frameBudget": 2048,
+        "maxSamples": 4,
+        "meshes": 2,
+        "triangles": 180,
+        "texturePages": 2,
+        "textureWidth": 2,
+        "textureHeight": 2,
+        "samples": {
+          "min": 0,
+          "max": 0,
+          "avg": 0,
+          "samplesPerSecond": 0
+        },
+        "limits": {
+          "maxBufferSize": 2147483648,
+          "maxStorageBufferBindingSize": 2147483644,
+          "maxTextureDimension2D": 16384
+        }
+      },
+      "restored": true,
+      "unchanged": false,
+      "stableSamples": {
+        "min": 2,
+        "max": 2,
+        "avg": 2,
+        "samplesPerSecond": 0.5357764740498913
+      },
+      "moved": true,
+      "movedSamples": null,
+      "rebuilt": true,
+      "spawned": {
+        "backend": "webgpu",
+        "implementation": "three-gpu-pathtracer",
+        "width": 16,
+        "height": 12,
+        "maxBounces": 2,
+        "frameBudget": 512,
+        "maxSamples": 2,
+        "meshes": 2,
+        "triangles": 60,
+        "texturePages": 1,
+        "textureWidth": 1,
+        "textureHeight": 1,
+        "samples": {
+          "min": 0,
+          "max": 0,
+          "avg": 0,
+          "samplesPerSecond": 0
+        },
+        "limits": {
+          "maxBufferSize": 2147483648,
+          "maxStorageBufferBindingSize": 2147483644,
+          "maxTextureDimension2D": 16384
+        }
+      },
+      "removed": {
+        "backend": "webgpu",
+        "implementation": "three-gpu-pathtracer",
+        "width": 16,
+        "height": 12,
+        "maxBounces": 2,
+        "frameBudget": 512,
+        "maxSamples": 2,
+        "meshes": 1,
+        "triangles": 12,
+        "texturePages": 1,
+        "textureWidth": 1,
+        "textureHeight": 1,
+        "samples": {
+          "min": 0,
+          "max": 0,
+          "avg": 0,
+          "samplesPerSecond": 0
+        },
+        "limits": {
+          "maxBufferSize": 2147483648,
+          "maxStorageBufferBindingSize": 2147483644,
+          "maxTextureDimension2D": 16384
+        }
+      },
+      "spawnPreservedBVH": true,
+      "materialPreservedBVH": true,
+      "removalPreservedBVH": true,
+      "errors": []
+    },
+    {
+      "test": "quality-facade-bvh-cache",
+      "spawnPreservedBVH": true,
+      "removalPreservedBVH": true,
+      "materialPreservedBVH": true,
+      "updatedEmission": 3,
+      "geometryRebuiltBVH": true,
+      "boundsMinimumX": 8.999999046325684,
+      "before": {
+        "mean": 0.4895833333333333,
+        "centerRed": 3,
+        "nonFinite": 0
+      },
+      "after": {
+        "mean": 0,
+        "centerRed": 0,
+        "nonFinite": 0
+      },
+      "errors": []
+    },
+    {
+      "test": "public-textured-glb-to-quality",
+      "bytes": 2724,
+      "meshoptRequired": true,
+      "dimensions": [
+        2,
+        2
+      ],
+      "textureColorSpace": "srgb",
+      "before": {
+        "backend": "webgpu",
+        "implementation": "three-gpu-pathtracer",
+        "width": 16,
+        "height": 16,
+        "maxBounces": 2,
+        "frameBudget": 256,
+        "maxSamples": 2,
+        "meshes": 1,
+        "triangles": 12,
+        "texturePages": 1,
+        "textureWidth": 2,
+        "textureHeight": 2,
+        "samples": {
+          "min": 2,
+          "max": 2,
+          "avg": 2,
+          "samplesPerSecond": 0.5964273998726299
+        },
+        "limits": {
+          "maxBufferSize": 2147483648,
+          "maxStorageBufferBindingSize": 2147483644,
+          "maxTextureDimension2D": 16384
+        }
+      },
+      "mean": 0.14240910129107456,
+      "max": 1.0012636184692383,
+      "nonFinite": 0,
+      "redPixels": 22,
+      "cyanPixels": 26,
+      "reset": true,
+      "moved": {
+        "backend": "webgpu",
+        "implementation": "three-gpu-pathtracer",
+        "width": 16,
+        "height": 16,
+        "maxBounces": 2,
+        "frameBudget": 256,
+        "maxSamples": 2,
+        "meshes": 1,
+        "triangles": 12,
+        "texturePages": 1,
+        "textureWidth": 2,
+        "textureHeight": 2,
+        "samples": {
+          "min": 2,
+          "max": 2,
+          "avg": 2,
+          "samplesPerSecond": 227.27272696485207
+        },
+        "limits": {
+          "maxBufferSize": 2147483648,
+          "maxStorageBufferBindingSize": 2147483644,
+          "maxTextureDimension2D": 16384
+        }
+      },
+      "stopBeforeCompletedSample": true,
+      "completedPendingRead": {
+        "min": 0,
+        "max": 0,
+        "avg": 0,
+        "samplesPerSecond": 0
+      },
+      "borrowedAfterViewDispose": {
+        "geometry": 0,
+        "material": 0,
+        "texture": 0
+      },
+      "releases": {
+        "geometry": 1,
+        "material": 1,
+        "texture": 1
+      },
+      "remainingAssetEntries": 0,
+      "errors": []
+    },
+    {
+      "test": "quality-graphics-adapters",
+      "gpuMode": "hardware",
+      "graphics": {
+        "webgpu": [
+          {
+            "vendor": "nvidia",
+            "architecture": "pascal",
+            "device": "",
+            "description": "",
+            "isFallbackAdapter": false
+          },
+          {
+            "vendor": "nvidia",
+            "architecture": "pascal",
+            "device": "",
+            "description": "",
+            "isFallbackAdapter": false
+          },
+          {
+            "vendor": "nvidia",
+            "architecture": "pascal",
+            "device": "",
+            "description": "",
+            "isFallbackAdapter": false
+          },
+          {
+            "vendor": "nvidia",
+            "architecture": "pascal",
+            "device": "",
+            "description": "",
+            "isFallbackAdapter": false
+          }
+        ],
+        "webgl": []
+      }
+    }
+  ],
+  "rasterLifecycle": {
+    "ok": true,
+    "browser": "155.0.4283.62",
+    "gpuMode": "hardware",
+    "graphics": {
+      "webgpu": [
+        {
+          "vendor": "nvidia",
+          "architecture": "pascal",
+          "device": "",
+          "description": "",
+          "isFallbackAdapter": false
+        }
+      ],
+      "webgl": [
+        {
+          "vendor": "Google Inc. (NVIDIA)",
+          "description": "ANGLE (NVIDIA, NVIDIA GeForce GTX 1070 (0x00001B81) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        {
+          "vendor": "Google Inc. (NVIDIA)",
+          "description": "ANGLE (NVIDIA, NVIDIA GeForce GTX 1070 (0x00001B81) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        {
+          "vendor": "Google Inc. (NVIDIA)",
+          "description": "ANGLE (NVIDIA, NVIDIA GeForce GTX 1070 (0x00001B81) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        {
+          "vendor": "Google Inc. (NVIDIA)",
+          "description": "ANGLE (NVIDIA, NVIDIA GeForce GTX 1070 (0x00001B81) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        {
+          "vendor": "Google Inc. (NVIDIA)",
+          "description": "ANGLE (NVIDIA, NVIDIA GeForce GTX 1070 (0x00001B81) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        {
+          "vendor": "Google Inc. (NVIDIA)",
+          "description": "ANGLE (NVIDIA, NVIDIA GeForce GTX 1070 (0x00001B81) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        }
+      ]
+    },
+    "checks": 95,
+    "cycles": [
+      {
+        "backend": "webgl",
+        "baseline": {
+          "backend": "webgl2",
+          "quality": "low",
+          "drawCalls": 17,
+          "triangles": 901,
+          "geometries": 10,
+          "textures": 6,
+          "instances": 1,
+          "batches": 1,
+          "objects": 2,
+          "cachedGeometries": 1,
+          "cachedMaterials": 1,
+          "pixelRatio": 1,
+          "bloom": false,
+          "renderObjects": 17
+        },
+        "samples": {
+          "count": 20,
+          "final": {
+            "backend": "webgl2",
+            "quality": "low",
+            "drawCalls": 4,
+            "triangles": 745,
+            "geometries": 10,
+            "textures": 6,
+            "instances": 1,
+            "batches": 1,
+            "objects": 2,
+            "cachedGeometries": 1,
+            "cachedMaterials": 1,
+            "pixelRatio": 1,
+            "bloom": false,
+            "renderObjects": 17
+          }
+        },
+        "listenersAfter": 0,
+        "ordinaryTeleport": {
+          "ordinaryPreserved": true,
+          "batchPreserved": true,
+          "position": [
+            1,
+            1,
+            0
+          ],
+          "batchDisposals": 0,
+          "stats": {
+            "backend": "webgl2",
+            "quality": "low",
+            "drawCalls": 4,
+            "triangles": 745,
+            "geometries": 10,
+            "textures": 6,
+            "instances": 1,
+            "batches": 1,
+            "objects": 2,
+            "cachedGeometries": 1,
+            "cachedMaterials": 1,
+            "pixelRatio": 1,
+            "bloom": false,
+            "renderObjects": 17
+          }
+        },
+        "batchTeleport": {
+          "batchRebuilt": true,
+          "batchDisposals": 1,
+          "position": [
+            -1,
+            0.5,
+            0
+          ],
+          "bounds": [
+            [
+              -1.5,
+              0,
+              -0.5
+            ],
+            [
+              -0.5,
+              1,
+              0.5
+            ]
+          ],
+          "entityId": "batch",
+          "stats": {
+            "backend": "webgl2",
+            "quality": "low",
+            "drawCalls": 4,
+            "triangles": 745,
+            "geometries": 10,
+            "textures": 6,
+            "instances": 1,
+            "batches": 1,
+            "objects": 2,
+            "cachedGeometries": 1,
+            "cachedMaterials": 1,
+            "pixelRatio": 1,
+            "bloom": false,
+            "renderObjects": 17
+          }
+        }
+      },
+      {
+        "backend": "auto",
+        "baseline": {
+          "backend": "webgpu",
+          "quality": "low",
+          "drawCalls": 17,
+          "triangles": 901,
+          "geometries": 10,
+          "textures": 6,
+          "instances": 1,
+          "batches": 1,
+          "objects": 2,
+          "cachedGeometries": 1,
+          "cachedMaterials": 1,
+          "pixelRatio": 1,
+          "bloom": false,
+          "renderObjects": 17
+        },
+        "samples": {
+          "count": 20,
+          "final": {
+            "backend": "webgpu",
+            "quality": "low",
+            "drawCalls": 4,
+            "triangles": 745,
+            "geometries": 10,
+            "textures": 6,
+            "instances": 1,
+            "batches": 1,
+            "objects": 2,
+            "cachedGeometries": 1,
+            "cachedMaterials": 1,
+            "pixelRatio": 1,
+            "bloom": false,
+            "renderObjects": 17
+          }
+        },
+        "listenersAfter": 0,
+        "ordinaryTeleport": {
+          "ordinaryPreserved": true,
+          "batchPreserved": true,
+          "position": [
+            1,
+            1,
+            0
+          ],
+          "batchDisposals": 0,
+          "stats": {
+            "backend": "webgpu",
+            "quality": "low",
+            "drawCalls": 4,
+            "triangles": 745,
+            "geometries": 10,
+            "textures": 6,
+            "instances": 1,
+            "batches": 1,
+            "objects": 2,
+            "cachedGeometries": 1,
+            "cachedMaterials": 1,
+            "pixelRatio": 1,
+            "bloom": false,
+            "renderObjects": 17
+          }
+        },
+        "batchTeleport": {
+          "batchRebuilt": true,
+          "batchDisposals": 1,
+          "position": [
+            -1,
+            0.5,
+            0
+          ],
+          "bounds": [
+            [
+              -1.5,
+              0,
+              -0.5
+            ],
+            [
+              -0.5,
+              1,
+              0.5
+            ]
+          ],
+          "entityId": "batch",
+          "stats": {
+            "backend": "webgpu",
+            "quality": "low",
+            "drawCalls": 4,
+            "triangles": 745,
+            "geometries": 10,
+            "textures": 6,
+            "instances": 1,
+            "batches": 1,
+            "objects": 2,
+            "cachedGeometries": 1,
+            "cachedMaterials": 1,
+            "pixelRatio": 1,
+            "bloom": false,
+            "renderObjects": 17
+          }
+        }
+      }
+    ],
+    "upfront": {
+      "message": "Unknown quality: bogus",
+      "initialized": 0,
+      "disposed": 0,
+      "unusedCanvas": true
+    },
+    "rollback": {
+      "message": "injected resource failure",
+      "initialized": 1,
+      "disposed": 1,
+      "listeners": 0,
+      "contextReleased": true
+    },
+    "devicePixelRatio": 2,
+    "validationCleanup": {
+      "message": "scene.name: expected a nonempty name of at most 160 characters",
+      "widthStyle": "",
+      "heightStyle": "",
+      "width": 64,
+      "height": 32,
+      "unusedCanvas": true
+    },
+    "facadeCycles": [
+      {
+        "initial": [
+          64,
+          32,
+          96,
+          48
+        ],
+        "settled": [
+          64,
+          32,
+          96,
+          48
+        ],
+        "beforeDispose": {
+          "dimensions": [
+            64,
+            32,
+            96,
+            48
+          ],
+          "tick": 2,
+          "running": false
+        },
+        "listenersAfter": 0,
+        "stylesAfter": [
+          "",
+          ""
+        ],
+        "runningAfter": false
+      },
+      {
+        "initial": [
+          64,
+          32,
+          96,
+          48
+        ],
+        "settled": [
+          64,
+          32,
+          96,
+          48
+        ],
+        "beforeDispose": {
+          "dimensions": [
+            64,
+            32,
+            96,
+            48
+          ],
+          "tick": 2,
+          "running": false
+        },
+        "listenersAfter": 0,
+        "stylesAfter": [
+          "",
+          ""
+        ],
+        "runningAfter": false
+      },
+      {
+        "initial": [
+          64,
+          32,
+          96,
+          48
+        ],
+        "settled": [
+          64,
+          32,
+          96,
+          48
+        ],
+        "beforeDispose": {
+          "dimensions": [
+            64,
+            32,
+            96,
+            48
+          ],
+          "tick": 1,
+          "running": false
+        },
+        "listenersAfter": 0,
+        "stylesAfter": [
+          "",
+          ""
+        ],
+        "runningAfter": false
+      }
+    ],
+    "hiddenResponsive": {
+      "styles": [
+        "",
+        ""
+      ],
+      "visible": [
+        320,
+        240,
+        320,
+        240
+      ]
+    }
+  },
+  "productionBrowser": {
+    "ok": true,
+    "browser": "155.0.4283.62",
+    "gpuMode": "hardware",
+    "graphics": [
+      {
+        "webgpu": [
+          {
+            "vendor": "nvidia",
+            "architecture": "pascal",
+            "device": "",
+            "description": "",
+            "isFallbackAdapter": false
+          }
+        ],
+        "webgl": []
+      },
+      {
+        "webgpu": [
+          {
+            "vendor": "nvidia",
+            "architecture": "pascal",
+            "device": "",
+            "description": "",
+            "isFallbackAdapter": false
+          }
+        ],
+        "webgl": []
+      },
+      {
+        "webgpu": [
+          {
+            "vendor": "nvidia",
+            "architecture": "pascal",
+            "device": "",
+            "description": "",
+            "isFallbackAdapter": false
+          }
+        ],
+        "webgl": []
+      },
+      {
+        "webgpu": [],
+        "webgl": [
+          {
+            "vendor": "Google Inc. (NVIDIA)",
+            "description": "ANGLE (NVIDIA, NVIDIA GeForce GTX 1070 (0x00001B81) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+          }
+        ]
+      },
+      {
+        "webgpu": [
+          {
+            "vendor": "nvidia",
+            "architecture": "pascal",
+            "device": "",
+            "description": "",
+            "isFallbackAdapter": false
+          }
+        ],
+        "webgl": []
+      }
+    ],
+    "cases": [
+      "compact",
+      "quality",
+      "webgl",
+      "auto"
+    ],
+    "results": [
+      {
+        "test": "pathtrace-1-bounces",
+        "state": {
+          "ready": true,
+          "mode": "pathtrace",
+          "scene": "light-study",
+          "tick": 0,
+          "entities": 10,
+          "collected": [],
+          "renderer": {
+            "backend": "webgpu-compute",
+            "samples": 17,
+            "width": 96,
+            "height": 64,
+            "triangles": 2244,
+            "bvhNodes": 1415,
+            "bvhDepth": 11,
+            "maxBounces": 1,
+            "approximateBufferBytes": 382288,
+            "status": "ready"
+          }
+        },
+        "mean": 0.3456684014637469,
+        "max": 3.6327450275421143,
+        "nonFinite": 0
+      },
+      {
+        "test": "pathtrace-8-bounces",
+        "state": {
+          "ready": true,
+          "mode": "pathtrace",
+          "scene": "light-study",
+          "tick": 0,
+          "entities": 10,
+          "collected": [],
+          "renderer": {
+            "backend": "webgpu-compute",
+            "samples": 17,
+            "width": 96,
+            "height": 64,
+            "triangles": 2244,
+            "bvhNodes": 1415,
+            "bvhDepth": 11,
+            "maxBounces": 8,
+            "approximateBufferBytes": 382288,
+            "status": "ready"
+          }
+        },
+        "mean": 0.6294283811168194,
+        "max": 11.323530197143555,
+        "nonFinite": 0
+      },
+      {
+        "test": "dynamic-refit",
+        "before": {
+          "backend": "webgpu-compute",
+          "samples": 18,
+          "width": 96,
+          "height": 64,
+          "triangles": 2244,
+          "bvhNodes": 1415,
+          "bvhDepth": 11,
+          "maxBounces": 8,
+          "approximateBufferBytes": 382288,
+          "status": "ready"
+        },
+        "after": {
+          "backend": "webgpu-compute",
+          "samples": 1,
+          "width": 96,
+          "height": 64,
+          "triangles": 2244,
+          "bvhNodes": 1415,
+          "bvhDepth": 11,
+          "maxBounces": 8,
+          "approximateBufferBytes": 382288,
+          "status": "ready"
+        },
+        "unchanged": {
+          "backend": "webgpu-compute",
+          "samples": 2,
+          "width": 96,
+          "height": 64,
+          "triangles": 2244,
+          "bvhNodes": 1415,
+          "bvhDepth": 11,
+          "maxBounces": 8,
+          "approximateBufferBytes": 382288,
+          "status": "ready"
+        },
+        "nonFinite": 0
+      },
+      {
+        "test": "quality-facade",
+        "state": {
+          "ready": true,
+          "mode": "pathtrace",
+          "scene": "light-study",
+          "tick": 0,
+          "entities": 10,
+          "collected": [],
+          "renderer": {
+            "backend": "webgpu",
+            "implementation": "three-gpu-pathtracer",
+            "width": 32,
+            "height": 21,
+            "maxBounces": 4,
+            "frameBudget": 2048,
+            "maxSamples": 2,
+            "meshes": 10,
+            "triangles": 2964,
+            "texturePages": 1,
+            "textureWidth": 2,
+            "textureHeight": 2,
+            "samples": {
+              "min": 2,
+              "max": 2,
+              "avg": 2,
+              "samplesPerSecond": 0.7162041181736795
+            },
+            "limits": {
+              "maxBufferSize": 2147483648,
+              "maxStorageBufferBindingSize": 2147483644,
+              "maxTextureDimension2D": 16384
+            }
+          }
+        },
+        "samples": {
+          "min": 2,
+          "max": 2,
+          "avg": 2,
+          "samplesPerSecond": 0.7162041181736795
+        },
+        "mean": 0.34076002313398507,
+        "max": 4.041728973388672,
+        "nonFinite": 0,
+        "texturedFloor": true,
+        "optics": {
+          "focusDistance": 8,
+          "fStop": 8,
+          "reset": true
+        },
+        "transformReset": true
+      },
+      {
+        "test": "playable-webgl",
+        "initial": {
+          "ready": true,
+          "mode": "raster",
+          "scene": "island",
+          "tick": 0,
+          "entities": 203,
+          "player": [
+            0,
+            2,
+            8
+          ],
+          "collected": [],
+          "renderer": {
+            "backend": "webgl2",
+            "quality": "low",
+            "drawCalls": 85,
+            "triangles": 49553,
+            "geometries": 47,
+            "textures": 6,
+            "instances": 195,
+            "batches": 114,
+            "objects": 203,
+            "cachedGeometries": 68,
+            "cachedMaterials": 41,
+            "pixelRatio": 1,
+            "bloom": false
+          },
+          "physics": {
+            "bodies": 33,
+            "characters": 1,
+            "grounded": {
+              "player": false
+            }
+          }
+        },
+        "before": [
+          -1.923226136568701e-06,
+          0.8700874447822571,
+          7.999996185302734
+        ],
+        "after": [
+          -0.00011863847612403333,
+          0.8700810074806213,
+          3.500067949295044
+        ],
+        "jumped": [
+          -0.00011863847612403333,
+          1.757530927658081,
+          3.500067949295044
+        ],
+        "collected": {
+          "ready": true,
+          "mode": "raster",
+          "scene": "island",
+          "tick": 315,
+          "entities": 203,
+          "player": [
+            14,
+            1.6472749710083008,
+            -5.400000095367432
+          ],
+          "collected": [
+            "beacon-0",
+            "beacon-1",
+            "beacon-2"
+          ],
+          "renderer": {
+            "backend": "webgl2",
+            "quality": "low",
+            "drawCalls": 42,
+            "triangles": 37377,
+            "geometries": 68,
+            "textures": 6,
+            "instances": 195,
+            "batches": 114,
+            "objects": 203,
+            "cachedGeometries": 68,
+            "cachedMaterials": 41,
+            "pixelRatio": 1,
+            "bloom": false
+          },
+          "physics": {
+            "bodies": 33,
+            "characters": 1,
+            "grounded": {
+              "player": false
+            }
+          }
+        },
+        "batches": {
+          "hasObject": true,
+          "stats": {
+            "backend": "webgl2",
+            "quality": "low",
+            "drawCalls": 42,
+            "triangles": 37377,
+            "geometries": 68,
+            "textures": 6,
+            "instances": 195,
+            "batches": 114,
+            "objects": 203,
+            "cachedGeometries": 68,
+            "cachedMaterials": 41,
+            "pixelRatio": 1,
+            "bloom": false
+          }
+        }
+      },
+      {
+        "test": "playable-auto",
+        "initial": {
+          "ready": true,
+          "mode": "raster",
+          "scene": "island",
+          "tick": 0,
+          "entities": 203,
+          "player": [
+            0,
+            2,
+            8
+          ],
+          "collected": [],
+          "renderer": {
+            "backend": "webgpu",
+            "quality": "low",
+            "drawCalls": 85,
+            "triangles": 49553,
+            "geometries": 47,
+            "textures": 6,
+            "instances": 195,
+            "batches": 114,
+            "objects": 203,
+            "cachedGeometries": 68,
+            "cachedMaterials": 41,
+            "pixelRatio": 1,
+            "bloom": false
+          },
+          "physics": {
+            "bodies": 33,
+            "characters": 1,
+            "grounded": {
+              "player": false
+            }
+          }
+        },
+        "before": [
+          -1.923226136568701e-06,
+          0.8700874447822571,
+          7.999996185302734
+        ],
+        "after": [
+          -0.00011863847612403333,
+          0.8700810074806213,
+          3.500067949295044
+        ],
+        "jumped": [
+          -0.00011863847612403333,
+          1.757530927658081,
+          3.500067949295044
+        ],
+        "collected": {
+          "ready": true,
+          "mode": "raster",
+          "scene": "island",
+          "tick": 315,
+          "entities": 203,
+          "player": [
+            14,
+            1.6472749710083008,
+            -5.400000095367432
+          ],
+          "collected": [
+            "beacon-0",
+            "beacon-1",
+            "beacon-2"
+          ],
+          "renderer": {
+            "backend": "webgpu",
+            "quality": "low",
+            "drawCalls": 42,
+            "triangles": 37377,
+            "geometries": 68,
+            "textures": 6,
+            "instances": 195,
+            "batches": 114,
+            "objects": 203,
+            "cachedGeometries": 68,
+            "cachedMaterials": 41,
+            "pixelRatio": 1,
+            "bloom": false
+          },
+          "physics": {
+            "bodies": 33,
+            "characters": 1,
+            "grounded": {
+              "player": false
+            }
+          }
+        },
+        "batches": {
+          "hasObject": true,
+          "stats": {
+            "backend": "webgpu",
+            "quality": "low",
+            "drawCalls": 42,
+            "triangles": 37377,
+            "geometries": 68,
+            "textures": 6,
+            "instances": 195,
+            "batches": 114,
+            "objects": 203,
+            "cachedGeometries": 68,
+            "cachedMaterials": 41,
+            "pixelRatio": 1,
+            "bloom": false
+          }
+        }
+      }
+    ],
+    "captures": [
+      {
+        "file": "pathtrace-1.png",
+        "width": 96,
+        "height": 64,
+        "cssWidth": 900,
+        "cssHeight": 600,
+        "mean": 0.5557032101034859,
+        "visible": 6144
+      },
+      {
+        "file": "pathtrace-8.png",
+        "width": 96,
+        "height": 64,
+        "cssWidth": 900,
+        "cssHeight": 600,
+        "mean": 0.7743287462554467,
+        "visible": 6144
+      },
+      {
+        "file": "pathtrace-quality.png",
+        "width": 32,
+        "height": 21,
+        "cssWidth": 900,
+        "cssHeight": 600,
+        "mean": 0.5401824618736384,
+        "visible": 672
+      },
+      {
+        "file": "island-webgl.png",
+        "width": 900,
+        "height": 600,
+        "cssWidth": 900,
+        "cssHeight": 600,
+        "mean": 0.7223856741709029,
+        "visible": 540000
+      },
+      {
+        "file": "island-auto.png",
+        "width": 900,
+        "height": 600,
+        "cssWidth": 900,
+        "cssHeight": 600,
+        "mean": 0.7223876034858387,
+        "visible": 540000
+      }
+    ],
+    "errors": [],
+    "warnings": [
+      "The powerPreference option is currently ignored when calling requestAdapter() on Windows. See https://crbug.com/369219127",
+      "THREE.Source: \"Source\" has been renamed to \"TextureSource\". Please update your code to use \"THREE.TextureSource\" instead."
+    ]
+  },
+  "benchmark": {
+    "ok": true,
+    "gpuMode": "hardware",
+    "purpose": "hardware-benchmark",
+    "timestamp": "2026-10-21T03:37:26.778Z",
+    "cases": [
+      {
+        "width": 320,
+        "height": 180,
+        "maxBounces": 4,
+        "frameBudget": 8192,
+        "initializationMs": 141.29999995231628,
+        "elapsedMs": 10000.600000023842,
+        "dispatches": 2361,
+        "dispatchMs": {
+          "mean": 4.234138077166766,
+          "median": 4.199999988079071,
+          "p95": 5.899999976158142
+        },
+        "samples": {
+          "min": 164,
+          "max": 215,
+          "avg": 202.41776041666665,
+          "samplesPerSecond": 20.248863143766986
+        },
+        "averageSamplesPerSecond": 20.240561607921933,
+        "inspection": {
+          "backend": "webgpu",
+          "implementation": "three-gpu-pathtracer",
+          "width": 320,
+          "height": 180,
+          "maxBounces": 4,
+          "frameBudget": 8192,
+          "maxSamples": 0,
+          "meshes": 3,
+          "triangles": 1932,
+          "texturePages": 1,
+          "textureWidth": 1,
+          "textureHeight": 1,
+          "samples": {
+            "min": 164,
+            "max": 215,
+            "avg": 202.41776041666665,
+            "samplesPerSecond": 20.248863143766986
+          },
+          "limits": {
+            "maxBufferSize": 2147483648,
+            "maxStorageBufferBindingSize": 2147483644,
+            "maxTextureDimension2D": 16384
+          }
+        },
+        "nonFinite": 0,
+        "meanLinearRGB": 0.4497968049490063,
+        "cameraReset": true,
+        "afterMotion": {
+          "min": 0,
+          "max": 1,
+          "avg": 0.000975609756097561,
+          "samplesPerSecond": 0.13740982434105006
+        }
+      },
+      {
+        "width": 320,
+        "height": 180,
+        "maxBounces": 4,
+        "frameBudget": 32768,
+        "initializationMs": 53.39999997615814,
+        "elapsedMs": 10003.899999976158,
+        "dispatches": 2356,
+        "dispatchMs": {
+          "mean": 4.244482173225471,
+          "median": 4.200000047683716,
+          "p95": 5.899999976158142
+        },
+        "samples": {
+          "min": 428,
+          "max": 1092,
+          "avg": 873.34640625,
+          "samplesPerSecond": 87.33988101806932
+        },
+        "averageSamplesPerSecond": 87.30059339378457,
+        "inspection": {
+          "backend": "webgpu",
+          "implementation": "three-gpu-pathtracer",
+          "width": 320,
+          "height": 180,
+          "maxBounces": 4,
+          "frameBudget": 32768,
+          "maxSamples": 0,
+          "meshes": 3,
+          "triangles": 1932,
+          "texturePages": 1,
+          "textureWidth": 1,
+          "textureHeight": 1,
+          "samples": {
+            "min": 428,
+            "max": 1092,
+            "avg": 873.34640625,
+            "samplesPerSecond": 87.33988101806932
+          },
+          "limits": {
+            "maxBufferSize": 2147483648,
+            "maxStorageBufferBindingSize": 2147483644,
+            "maxTextureDimension2D": 16384
+          }
+        },
+        "nonFinite": 0,
+        "meanLinearRGB": 0.4498204687921087,
+        "cameraReset": true,
+        "afterMotion": {
+          "min": 0,
+          "max": 1,
+          "avg": 0.41938799014830697,
+          "samplesPerSecond": 39.94171334745781
+        }
+      },
+      {
+        "width": 320,
+        "height": 180,
+        "maxBounces": 4,
+        "frameBudget": 57600,
+        "initializationMs": 36,
+        "elapsedMs": 10001.099999964237,
+        "dispatches": 2372,
+        "dispatchMs": {
+          "mean": 4.214502529515987,
+          "median": 4.199999988079071,
+          "p95": 5.800000011920929
+        },
+        "samples": {
+          "min": 549,
+          "max": 2371,
+          "avg": 1662.0832118055555,
+          "samplesPerSecond": 166.28813948770787
+        },
+        "averageSamplesPerSecond": 166.19004027671946,
+        "inspection": {
+          "backend": "webgpu",
+          "implementation": "three-gpu-pathtracer",
+          "width": 320,
+          "height": 180,
+          "maxBounces": 4,
+          "frameBudget": 57600,
+          "maxSamples": 0,
+          "meshes": 3,
+          "triangles": 1932,
+          "texturePages": 1,
+          "textureWidth": 1,
+          "textureHeight": 1,
+          "samples": {
+            "min": 549,
+            "max": 2371,
+            "avg": 1662.0832118055555,
+            "samplesPerSecond": 166.28813948770787
+          },
+          "limits": {
+            "maxBufferSize": 2147483648,
+            "maxStorageBufferBindingSize": 2147483644,
+            "maxTextureDimension2D": 16384
+          }
+        },
+        "nonFinite": 0,
+        "meanLinearRGB": 0.44988632157807135,
+        "cameraReset": true,
+        "afterMotion": {
+          "min": 0,
+          "max": 1,
+          "avg": 0.45993055555555556,
+          "samplesPerSecond": 45.53767866038145
+        }
+      },
+      {
+        "width": 640,
+        "height": 360,
+        "maxBounces": 8,
+        "frameBudget": 131072,
+        "initializationMs": 39.89999997615814,
+        "elapsedMs": 10003.199999988079,
+        "dispatches": 1741,
+        "dispatchMs": {
+          "mean": 5.744112579011835,
+          "median": 5.600000023841858,
+          "p95": 6.900000035762787
+        },
+        "samples": {
+          "min": 271,
+          "max": 803,
+          "avg": 642.1363324652777,
+          "samplesPerSecond": 64.23547330729912
+        },
+        "averageSamplesPerSecond": 64.19309145733796,
+        "inspection": {
+          "backend": "webgpu",
+          "implementation": "three-gpu-pathtracer",
+          "width": 640,
+          "height": 360,
+          "maxBounces": 8,
+          "frameBudget": 131072,
+          "maxSamples": 0,
+          "meshes": 3,
+          "triangles": 1932,
+          "texturePages": 1,
+          "textureWidth": 1,
+          "textureHeight": 1,
+          "samples": {
+            "min": 271,
+            "max": 803,
+            "avg": 642.1363324652777,
+            "samplesPerSecond": 64.23547330729912
+          },
+          "limits": {
+            "maxBufferSize": 2147483648,
+            "maxStorageBufferBindingSize": 2147483644,
+            "maxTextureDimension2D": 16384
+          }
+        },
+        "nonFinite": 0,
+        "meanLinearRGB": 0.45081181262753994,
+        "cameraReset": true,
+        "afterMotion": {
+          "min": 0,
+          "max": 1,
+          "avg": 0.419683613517929,
+          "samplesPerSecond": 47.15546200354138
+        }
+      }
+    ],
+    "errors": [],
+    "browser": "155.0.4283.62",
+    "browserGPU": {
+      "devices": [
+        {
+          "vendorId": 4318,
+          "deviceId": 7041,
+          "vendorString": "",
+          "deviceString": "NVIDIA GeForce GTX 1070",
+          "driverVendor": "",
+          "driverVersion": "31.0.15.5222"
+        },
+        {
+          "vendorId": 32902,
+          "deviceId": 16018,
+          "vendorString": "",
+          "deviceString": "Intel(R) UHD Graphics 630",
+          "driverVendor": "NVIDIA",
+          "driverVersion": "27.20.100.8854"
+        },
+        {
+          "vendorId": 5140,
+          "deviceId": 140,
+          "vendorString": "",
+          "deviceString": "Microsoft Basic Render Driver",
+          "driverVendor": "",
+          "driverVersion": "10.0.26100.9711"
+        }
+      ],
+      "glRenderer": "ANGLE (NVIDIA, NVIDIA GeForce GTX 1070 (0x00001B81) Direct3D11 vs_5_0 ps_5_0, D3D11-31.0.15.5222)",
+      "webgpu": "enabled"
+    },
+    "graphics": {
+      "webgpu": [
+        {
+          "vendor": "nvidia",
+          "architecture": "pascal",
+          "device": "",
+          "description": "",
+          "isFallbackAdapter": false
+        },
+        {
+          "vendor": "nvidia",
+          "architecture": "pascal",
+          "device": "",
+          "description": "",
+          "isFallbackAdapter": false
+        },
+        {
+          "vendor": "nvidia",
+          "architecture": "pascal",
+          "device": "",
+          "description": "",
+          "isFallbackAdapter": false
+        },
+        {
+          "vendor": "nvidia",
+          "architecture": "pascal",
+          "device": "",
+          "description": "",
+          "isFallbackAdapter": false
+        }
+      ],
+      "webgl": []
+    }
+  }
+}
