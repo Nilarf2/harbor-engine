@@ -18,6 +18,8 @@ The GLB test model's lossless candidate changed raw size from 38,088 to 17,188 b
 
 Configuration: Windows 11 x64, Core i7-8700, 8 GiB system RAM, GTX 1070 with 8 GiB VRAM, NVIDIA driver 31.0.15.5222 (552.22), Node 24.22.0, and headless Microsoft Edge 155.0.4283.62. Tests ran sequentially. The [machine-readable record](validation/gtx1070-2026-10-21.json) contains settings, observed adapters, readbacks, lifecycle results, benchmark data, the base commit, and SHA-256 values for the changed source/test files. The synchronized Windows files matched those hashes before execution. The final benchmark runner was separately synchronized and verified after extending its measurement window.
 
+The Windows runner invoked the quality suite as `node tests/pathtracing.mjs`, using precompiled asset modules from the build workstation, and invoked the other browser scripts directly. Full TypeScript/package compilation passed on the build workstation through `npm run check`; the production Vite build also ran on Windows. The npm script names below identify the corresponding suites, without implying a second Windows TypeScript compilation.
+
 The application's WebGPU adapters reported `nvidia` / `pascal`, `isFallbackAdapter: false`, with model fields redacted. The benchmark browser's own GPU diagnostics and the production application's WebGL renderer named GTX 1070; the inventory had one NVIDIA card. This combination supports attribution to that card. Without `HARBOR_GPU_POWER=high-performance`, the same machine selected Intel UHD 630 despite a WebGPU power preference hint. The accepted Windows runs used `--force_high_performance_gpu` on isolated test processes. No software-adapter forcing flags were used.
 
 | Check | Recorded result | Scope |
