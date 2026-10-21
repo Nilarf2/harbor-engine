@@ -1,4 +1,5 @@
 import { chromium } from 'playwright-core';
+import { browserLaunchOptions, observeGraphics, graphicsEvidence } from './browser-gpu.mjs';
 import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
@@ -20,11 +21,8 @@ const server=createServer(async(req,res)=>{
 });
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const base=`http://127.0.0.1:${server.address().port}/nested/`;
-const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:[
-  '--no-sandbox','--disable-dev-shm-usage','--disable-background-networking','--no-proxy-server',
-  '--enable-unsafe-webgpu','--enable-unsafe-swiftshader','--enable-features=Vulkan','--use-vulkan=swiftshader',
-  '--use-angle=swiftshader',
-]});
+let browser;
+const graphics = [];
 const errors=[],warnings=[],results=[],captures=[];let failure;
 async function evaluate(page, callback, argument) {
   let timer;
@@ -59,6 +57,7 @@ async function screenshot(page,name){
 }
 async function pageFor(query){
   const page=await browser.newPage({viewport:{width:900,height:600}});
+  await observeGraphics(page);
   page.on('pageerror',error=>errors.push(error.message));
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text());if(m.type()==='warning')warnings.push(m.text());});
   page.on('response',r=>{if(r.status()>=400)errors.push(`HTTP ${r.status()} ${r.url()}`);});
@@ -73,6 +72,7 @@ async function pageFor(query){
   return page;
 }
 try{
+  browser=await chromium.launch(browserLaunchOptions());
   for(const bounces of selectedCases.has('compact')?[1,8]:[]){
     const page=await pageFor(`?test&trace=compact&width=96&bounces=${bounces}&quality=low`);
     await evaluate(page,()=>{for(let i=0;i<15;i++)window.__HARBOR__.step(0);});
@@ -91,7 +91,7 @@ try{
       assert.equal(refit.after.samples,1);assert.equal(refit.unchanged.samples,2);assert.equal(refit.nonFinite,0);
       assert.equal(refit.before.bvhNodes,refit.after.bvhNodes);results.push({test:'dynamic-refit',...refit});
     }
-    await evaluate(page,()=>window.__HARBOR__.dispose());await page.close();
+    await evaluate(page,()=>window.__HARBOR__.dispose());graphics.push(await graphicsEvidence(page));await page.close();
   }
   if(selectedCases.has('compact'))assert.ok(results[1].mean>results[0].mean+0.01,'multiple bounces must add indirect light to this scene');
 
@@ -120,7 +120,7 @@ try{
     assert.equal(quality.texturedFloor,true);assert.deepEqual(quality.optics,{focusDistance:8,fStop:8,reset:true});
     assert.equal(quality.transformReset,true);results.push({test:'quality-facade',...quality});
     await screenshot(page,'pathtrace-quality.png');
-    await evaluate(page,()=>window.__HARBOR__.dispose());await page.close();
+    await evaluate(page,()=>window.__HARBOR__.dispose());graphics.push(await graphicsEvidence(page));await page.close();
   }
 
   for(const backend of ['webgl','auto'].filter(backend=>selectedCases.has(backend))){
@@ -156,12 +156,12 @@ try{
     await page.selectOption('#quality','low');await evaluate(page,()=>window.__HARBOR__.step(0));
     await screenshot(page,`island-${backend}.png`);
     results.push({test:`playable-${backend}`,initial,before,after,jumped,collected,batches});
-    await evaluate(page,()=>{window.__HARBOR__.dispose();window.__HARBOR__.dispose();});await page.close();
+    await evaluate(page,()=>{window.__HARBOR__.dispose();window.__HARBOR__.dispose();});graphics.push(await graphicsEvidence(page));await page.close();
   }
   assert.deepEqual(errors,[]);
   console.log(JSON.stringify({ok:true,checks:results.length,browser:browser.version()}));
-}catch(e){failure=e.stack||String(e);process.exitCode=1;console.error(failure);}
+}catch(e){if(e.evidence)graphics.push(e.evidence);failure=e.stack||String(e);process.exitCode=1;console.error(failure);}
 finally{
-  await writeFile(resolve(artifacts,resultFile),JSON.stringify({ok:!failure,failure,browser:browser.version(),softwareAdapter:true,cases:[...selectedCases],results,captures,errors,warnings:[...new Set(warnings)]},null,2));
-  await browser.close();await new Promise(r=>server.close(r));
+  try { await writeFile(resolve(artifacts,resultFile),JSON.stringify({ok:!failure,failure,browser:browser?.version(),gpuMode:process.env.HARBOR_GPU_MODE||'software',graphics,cases:[...selectedCases],results,captures,errors,warnings:[...new Set(warnings)]},null,2)); }
+  finally { try { await browser?.close(); } finally { await new Promise(r=>server.close(r)); } }
 }

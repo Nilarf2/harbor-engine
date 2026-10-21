@@ -242,8 +242,11 @@ export async function createGame(options: GameOptions): Promise<BrowserGame> {
     }
     if (camera) setCamera(camera);
     resize();
-    scope.add(world.events.on('entity:spawn', () => { sceneDirty = true; }));
-    scope.add(world.events.on('entity:remove', () => { sceneDirty = true; }));
+    // Quality observes lifecycle changes through its bridge and retains unchanged
+    // geometry BVHs. Only compact snapshots need lifecycle events to mark a rebuild.
+    if (tracer) for (const type of ['entity:spawn', 'entity:remove']) {
+      scope.add(world.events.on(type, () => { sceneDirty = true; }));
+    }
     const visibility = () => { cancelFrame(); if (!document.hidden) schedule(); };
     document.addEventListener('visibilitychange', visibility);
     scope.add(() => document.removeEventListener('visibilitychange', visibility));

@@ -189,7 +189,12 @@ export async function createBrowserRenderer(options: BrowserRendererOptions): Pr
     let bloomPass: ReturnType<typeof bloom> | undefined;
 
     const invalidate = () => { dirty = true; };
-    for (const type of ['entity:spawn', 'entity:remove', 'entity:transform']) scope.add(world.events.on(type, invalidate));
+    for (const type of ['entity:spawn', 'entity:remove']) scope.add(world.events.on(type, invalidate));
+    scope.add(world.events.on<Entity>('entity:transform', entity => {
+      // Ordinary meshes copy transforms on every render. Only static instances
+      // need their uploaded matrices, spatial cells and culling bounds rebuilt.
+      if (entity.visual?.batch) invalidate();
+    }));
 
     function releaseWorldMeshes(): void {
       const errors: unknown[] = [];

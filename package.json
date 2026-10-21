@@ -65,7 +65,8 @@
     "check": "npm run test && npm run build",
     "test:render": "node tests/render-lifecycle.mjs",
     "assets": "tsx tools/assets.ts",
-    "test:quality": "npm run build:engine && node tests/pathtracing.mjs"
+    "test:quality": "npm run build:engine && node tests/pathtracing.mjs",
+    "bench:gpu": "node tests/gpu-benchmark.mjs"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.21.0",
